@@ -29,6 +29,13 @@ public class FileHandler {
     //PLAYER_TEXTURE: the name of the player texture file
     public static final String PLAYER_TEXTURE = "player";
 
+    //DIRECTION_x_SUFFIX: added onto the back of a texture file's name,
+    //to indicate that the texture has directionality.
+    public static final String DIRECTION_UP_SUFFIX = "_up";
+    public static final String DIRECTION_LEFT_SUFFIX = "_left";
+    public static final String DIRECTION_DOWN_SUFFIX = "_down";
+    public static final String DIRECTION_RIGHT_SUFFIX = "_right";
+
     //loadImage(): takes in a file name (without extension)
     //returns a BufferedImage object of that file, for use in rendering
     public static BufferedImage loadImage(String fileName) {

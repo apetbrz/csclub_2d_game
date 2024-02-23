@@ -10,12 +10,14 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import static main.Main.TILE_SIZE;
+import static main.Main.RENDER_SCALE;
 
 public class GamePanel extends JPanel {
+
+    //TODO: WHY IS DOWN POSITIVE AND UP NEGATIVE? LEFT/RIGHT IS OKAY.
+
     //state: the GameState object. necessary for communication between state and panel
     private final GameState state;
-
-
 
     //SCREEN_WIDTH_IN_TILES:
     //SCREEN_HEIGHT_IN_TILES:
@@ -23,11 +25,6 @@ public class GamePanel extends JPanel {
     //to have a static screen size despite differing map sizes
     public static final int SCREEN_WIDTH_IN_TILES = 16;
     public static final int SCREEN_HEIGHT_IN_TILES = 9;
-
-    //RENDER_SCALE: a multiplier to all pixel values for rendering
-    //i use 2, so at TILE_SIZE = 32,
-    //the final tiles will be rendered as 64x64 pixels on the screen
-    public static final int RENDER_SCALE = 2;
 
     //DEFAULT_TILE: the tile that the game falls back on
     //if it encounters an error accessing a tile (i.e. out of bounds)

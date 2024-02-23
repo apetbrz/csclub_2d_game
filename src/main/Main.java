@@ -18,11 +18,20 @@ public class Main {
     //currently, tiles are 32x32 pixels
     public static final int TILE_SIZE = 32;
 
+    //RENDER_SCALE: a multiplier to all pixel values for rendering
+    //i use 2, so at TILE_SIZE = 32,
+    //the final tiles will be rendered as 64x64 pixels on the screen
+    public static final int RENDER_SCALE = 2;
+
     //CONTROL_TYPE: the control scheme.
     //    0: WASD movement
     //    1: MOUSE CLICK movement
     //NOTE: MOUSE CLICK movement has less development priority right now. its only kept just because
-    public static final int CONTROL_TYPE = 0;
+    public static final CONTROLLER CONTROL_TYPE = Main.CONTROLLER.KEYBOARD;
+    public enum CONTROLLER{
+        KEYBOARD,
+        MOUSE
+    }
 
     //FORCE_CENTERED_CAMERA: determines the default state of the camera,
     //whether it always follows the player or not

@@ -14,9 +14,6 @@ public class GameState {
     //panel: the game screen
     public GamePanel panel;
 
-    //cameraScale: the RENDER_SCALE from panel, used for transforming screen-space coordinates to world-space
-    public int cameraScale;
-
     //entityArray: a list of all entities currently loaded
     public ArrayList<Entity> entityArray;
 
@@ -39,11 +36,7 @@ public class GameState {
         entityArray = new ArrayList<>(16);
 
         //create the player
-        player = new Player(
-                "Player",
-                16,
-                4
-        );
+        player = new Player();
 
         //add the player to the array
         entityArray.add(player);
@@ -55,6 +48,46 @@ public class GameState {
 
         //set the player's location to the spawn point provided by the map.
         player.setLocation(loadedMap.spawnX, loadedMap.spawnY);
+
+        //as an example Entity, i created and added 12 Critters
+        //thank gabby for choosing the number twelve
+        //TODO: ADD ENTITY SPAWNING TO MAP FILES
+        Critter lilguy1 = new Critter("friend",8,1);
+        lilguy1.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy1);
+        Critter lilguy2 = new Critter("friend",8,1);
+        lilguy2.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy2);
+        Critter lilguy3 = new Critter("friend",8,1);
+        lilguy3.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy3);
+        Critter lilguy4 = new Critter("friend",8,1);
+        lilguy4.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy4);
+        Critter lilguy5 = new Critter("friend",8,1);
+        lilguy5.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy5);
+        Critter lilguy6 = new Critter("friend",8,1);
+        lilguy6.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy6);
+        Critter lilguy7 = new Critter("friend",8,1);
+        lilguy7.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy7);
+        Critter lilguy8 = new Critter("friend",8,1);
+        lilguy8.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy8);
+        Critter lilguy9 = new Critter("friend",8,1);
+        lilguy9.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy9);
+        Critter lilguy10 = new Critter("friend",8,1);
+        lilguy10.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy10);
+        Critter lilguy11 = new Critter("friend",8,1);
+        lilguy11.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy11);
+        Critter lilguy12 = new Critter("friend",8,1);
+        lilguy12.setLocation((int)player.x,(int)player.y);
+        entityArray.add(lilguy12);
     }
 
     //update(): ran once per frame, where all the game processing happens
@@ -73,7 +106,7 @@ public class GameState {
     //linkPanel(): binds the panel to the GameState object
     public void linkPanel(GamePanel pan){
         panel = pan;
-        cameraScale = GamePanel.RENDER_SCALE;
+
         //center the camera on the player (at their spawn)
         panel.centerCamera();
     }

@@ -4,11 +4,10 @@ import main.world.Tile;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 public class Entity {
     //game: the GameState object, so the entity can interact with other things
-    protected static GameState game;
+    protected static GameState state;
 
     //name: the name of the entity (used for display)
     public String name;
@@ -16,21 +15,15 @@ public class Entity {
     //image: the sprite of the entity
     public BufferedImage image;
 
-    //hasDirectionality: states whether the entity rotates/changes image as it changes direction
-    public boolean hasDirectionality;
-
     //up/left/down/rightImage: these hold the four images used for the four directions
+    //if hasDirectionality == false, these are all null.
     private BufferedImage upImage;
     private BufferedImage leftImage;
     private BufferedImage downImage;
     private BufferedImage rightImage;
 
-    //these constants hold the suffix added to the fileName of the image, for each direction
-    private static final String DIRECTION_UP_SUFFIX = "_up";
-    private static final String DIRECTION_LEFT_SUFFIX = "_left";
-    private static final String DIRECTION_DOWN_SUFFIX = "_down";
-    private static final String DIRECTION_RIGHT_SUFFIX = "_right";
-
+    //hasDirectionality: states whether the entity rotates/changes image as it changes direction
+    public boolean hasDirectionality;
 
     //x, y: 2D coordinate location
     public float x, y;
@@ -53,13 +46,9 @@ public class Entity {
     public boolean hasCollision;
 
     //CONSTRUCTORS
+    //TODO: CLEAN UP CONSTRUCTORS
     public Entity(){
-        x = 0;
-        y = 0;
-        targetX = x;
-        targetY = y;
         hasCollision = true;
-        hasDirectionality = false;
     }
     public Entity(String name, int size, int moveSpeed) {
         this();
@@ -68,12 +57,19 @@ public class Entity {
         this.size = size;
         this.moveSpeed = moveSpeed;
 
+        setImage(name);
+
+        initColliderRectangle();
+    }
+
+    //initColliderRectangle: initializes the collider, relative to the Entity's pos/size
+    protected void initColliderRectangle(){
         collider = new Rectangle2D.Float(x, y, size, size);
     }
 
     //linkGameState(): links every entity globally to the GameState object
     public void linkGameState(GameState game){
-        Entity.game = game;
+        Entity.state = game;
     }
 
     //setImage(): takes the name of a file in the textures folder
@@ -82,25 +78,25 @@ public class Entity {
         image = FileHandler.loadImage(fileName);
     }
 
-    protected void setDirectionalImages(String fileName){
+    protected void setImagesWithDirectionality(String fileName){
         hasDirectionality = true;
 
-        upImage = FileHandler.loadImage(fileName + DIRECTION_UP_SUFFIX);
-        leftImage = FileHandler.loadImage(fileName + DIRECTION_LEFT_SUFFIX);
-        downImage = FileHandler.loadImage(fileName + DIRECTION_DOWN_SUFFIX);
-        rightImage = FileHandler.loadImage(fileName + DIRECTION_RIGHT_SUFFIX);
+        upImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_UP_SUFFIX);
+        leftImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_LEFT_SUFFIX);
+        downImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_DOWN_SUFFIX);
+        rightImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_RIGHT_SUFFIX);
 
         image = downImage;
     }
 
     //moveTarget(): sets the X and Y main.world coordinates that the entity will move towards automatically
-    public void moveTarget(float X, float Y) {
+    public void moveTargetPoint(float X, float Y) {
         targetX = X;
         targetY = Y;
     }
 
     //moveVector(): similar to moveTarget(), but relative to the entity itself (directional/WASD controls)
-    public void moveVector(float X, float Y){
+    public void moveRelativeToPosition(float X, float Y){
         targetX = this.x + X;
         targetY = this.y + Y;
     }
@@ -109,9 +105,6 @@ public class Entity {
     public void update() {
         //move
         updatePosition();
-
-        //update collider position
-        collider.setRect(x, y, this.size, this.size);
     }
 
     //updatePosition(): handles movement, towards targetX & targetY
@@ -256,8 +249,8 @@ public class Entity {
         }
 
         //grab the two tiles to check, one for each "shoulder"
-        t1 = game.tileAt(x + moveX, y1);
-        t2 = game.tileAt(x + moveX, y2);
+        t1 = state.tileAt(x + moveX, y1);
+        t2 = state.tileAt(x + moveX, y2);
 
         //we can move so long as neither "shoulder" is colliding with a tile
         //if the tiles are null, we treat them as having solid collision
@@ -286,8 +279,8 @@ public class Entity {
         if (!(moveY < 0)) {
             y = y + this.size;
         }
-        t1 = game.tileAt(x1, y + moveY);
-        t2 = game.tileAt(x2, y + moveY);
+        t1 = state.tileAt(x1, y + moveY);
+        t2 = state.tileAt(x2, y + moveY);
 
         //we can move so long as neither "shoulder" is colliding with a tile
         //if the tiles are null, we treat them as having solid collision
@@ -299,10 +292,15 @@ public class Entity {
     //setLocation: moves the entity to the specific coordinates in worldspace,
     //centered on the point
     public void setLocation(int x, int y){
-        this.x = x - this.size/2;
-        this.y = y - this.size/2;
+        this.x = valueToCenterOfEntity(x);
+        this.y = valueToCenterOfEntity(y);
         this.targetX = x;
         this.targetY = y;
     }
 
+    //valueToCenterOfEntity(): turns an axis value (X/Y)
+    //from the top left corner of the entity to the center of the entity
+    public float valueToCenterOfEntity(float value){
+        return value - (float)this.size/2;
+    }
 }
