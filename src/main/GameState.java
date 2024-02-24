@@ -41,10 +41,10 @@ public class GameState {
         //add the player to the array
         entityArray.add(player);
 
-        //use the player to link all entities to this GameState object
+        //link all entities to this GameState object,
         //so that all entities can read the state
         //this is called "global state"
-        player.linkGameState(this);
+        Entity.linkGameState(this);
 
         //set the player's location to the spawn point provided by the map.
         player.setLocation(loadedMap.spawnX, loadedMap.spawnY);

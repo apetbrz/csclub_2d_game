@@ -68,7 +68,7 @@ public class Entity {
     }
 
     //linkGameState(): links every entity globally to the GameState object
-    public void linkGameState(GameState game){
+    public static void linkGameState(GameState game){
         Entity.state = game;
     }
 
