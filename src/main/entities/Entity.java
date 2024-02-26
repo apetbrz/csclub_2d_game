@@ -1,6 +1,7 @@
 package main.entities;
 import main.*;
 import main.world.Tile;
+import org.w3c.dom.css.Rect;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -67,6 +68,24 @@ public class Entity {
         collider = new Rectangle2D.Float(x, y, size, size);
     }
 
+    //initCollider(int,int,int,int): initializes the collider, same as above,
+    //but allows for four "margin" values, which shrink the collider box, in each of the 4 directions
+    //(IN PIXELS)
+    //as such:
+    /*
+    Entity.size square:
+    ----------------------------------
+    |           topMargin            |
+    |left   |---------------| right  |
+    |Margin |   collider    | Margin |
+    |       |---------------|        |
+    |          bottomMargin          |
+    ----------------------------------
+     */
+    protected void initColliderRectangle(int topMargin, int leftMargin, int bottomMargin, int rightMargin){
+        collider = new Rectangle2D.Float(x + leftMargin, y + topMargin, size - leftMargin - rightMargin, size - topMargin - bottomMargin);
+    }
+
     //linkGameState(): links every entity globally to the GameState object
     public static void linkGameState(GameState game){
         Entity.state = game;
@@ -78,6 +97,8 @@ public class Entity {
         image = FileHandler.loadImage(fileName);
     }
 
+    //setImagesWithDirectionality(): same as above, but
+    //handles the four directional images
     protected void setImagesWithDirectionality(String fileName){
         hasDirectionality = true;
 
@@ -162,6 +183,9 @@ public class Entity {
                         //if so, move the distance
                         x += remainingDistance;
 
+                        //update collider to new position
+                        collider.setRect(collider.getX() + remainingDistance, collider.getY(), collider.getWidth(), collider.getHeight());
+
                         //and add it to the distanceTraveled
                         distanceTraveled += remainingDistance;
                     }
@@ -188,6 +212,9 @@ public class Entity {
 
                         //if so, move the distance
                         y += remainingDistance;
+
+                        //update collider to new position
+                        collider.setRect(collider.getX(), collider.getY() + remainingDistance, collider.getWidth(), collider.getHeight());
 
                         //and add it to the distanceTraveled
                         distanceTraveled += remainingDistance;
@@ -221,9 +248,6 @@ public class Entity {
             // V
             else if (deltaY > 0) image = downImage;
         }
-
-        //update collider to new position
-        collider.setRect(x, y, collider.getWidth(), collider.getHeight());
     }
 
     //canMoveHorizontal: checks for collision and returns if we can move or not
@@ -236,15 +260,24 @@ public class Entity {
         Tile t1;
         Tile t2;
 
-        float x = this.x;
-        float y1 = this.y;
-        float y2 = this.y + this.size;
+        float x = (float) this.collider.getX();
+        float y1 = (float) this.collider.getY();
+        float y2 = y1 + (float) this.collider.getHeight() - 1 - 1;
+        //FOR SOME REASON, there is always a 1-pixel gap
+        //on the bottom/right edges
+        //only fixed by subtracting one!!! idk why.
+        //i had to subtract ANOTHER ONE!!!! bc otherwise movement
+        //wouldnt work, if against a wall on the bottom/right side of the player
+        //???
 
         //if moveX < 0, we are moving left
         //if we are moving right, we check from the right edge
         //(this.x is the left edge)
         if (!(moveX < 0)) {
-            x = x + this.size;
+            //FOR SOME REASON, there is always a 1-pixel gap
+            //on the bottom/right edges
+            //only fixed by subtracting one!!! idk why.
+            x = x + (float) this.collider.getWidth() - 1;
 
         }
 
@@ -269,15 +302,24 @@ public class Entity {
         Tile t1;
         Tile t2;
 
-        float y = this.y;
-        float x1 = this.x;
-        float x2 = this.x + this.size;
+        float y = (float) this.collider.getY();
+        float x1 = (float) this.collider.getX();
+        float x2 = x1 + (float) this.collider.getWidth() - 1 - 1;
+        //FOR SOME REASON, there is always a 1-pixel gap
+        //on the bottom/right edges
+        //only fixed by subtracting one!!! idk why.
+        //i had to subtract ANOTHER ONE!!!! bc otherwise movement
+        //wouldnt work, if against a wall on the bottom/right side of the player
+        //???
 
         //if moveY < 0, we are moving up
         //if we are moving down, we check from the bottom edge
         //(this.y is the top edge)
         if (!(moveY < 0)) {
-            y = y + this.size;
+            //FOR SOME REASON, there is always a 1-pixel gap
+            //on the bottom/right edges
+            //only fixed by subtracting one!!! idk why.
+            y = y + (float) this.collider.getHeight() - 1;
         }
         t1 = state.tileAt(x1, y + moveY);
         t2 = state.tileAt(x2, y + moveY);
@@ -292,15 +334,23 @@ public class Entity {
     //setLocation: moves the entity to the specific coordinates in worldspace,
     //centered on the point
     public void setLocation(int x, int y){
-        this.x = valueToCenterOfEntity(x);
-        this.y = valueToCenterOfEntity(y);
+        float deltaX = this.x + valueToCenterOfEntity(x);
+        float deltaY = this.y + valueToCenterOfEntity(y);
+        this.x += deltaX;
+        this.y += deltaY;
         this.targetX = x;
         this.targetY = y;
+        collider.setRect(collider.getX() + deltaX, collider.getY() + deltaY, collider.getWidth(), collider.getHeight());
     }
 
     //valueToCenterOfEntity(): turns an axis value (X/Y)
     //from the top left corner of the entity to the center of the entity
     public float valueToCenterOfEntity(float value){
         return value - (float)this.size/2;
+    }
+
+    //isPlayer(): returns true if the current entity is a player. i override this in Player.java
+    public boolean isPlayer(){
+        return false;
     }
 }

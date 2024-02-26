@@ -11,6 +11,11 @@ public class Player extends Entity{
     private static final String DEFAULT_NAME = "player";
     private static final int DEFAULT_MOVESPEED = 2;
     private static final int DEFAULT_SIZE = 16;
+
+    private static final int DEFAULT_TOP_MARGIN = 3;
+    private static final int DEFAULT_LEFT_MARGIN = 2;
+    private static final int DEFAULT_BOTTOM_MARGIN = 1;
+    private static final int DEFAULT_RIGHT_MARGIN = 2;
     
     //DEFAULT CONSTRUCTOR OVERRIDE
     //no other constructor, we want the player to always be the same
@@ -26,8 +31,8 @@ public class Player extends Entity{
         setImagesWithDirectionality(FileHandler.PLAYER_TEXTURE);
 
         //init the collider
-        initColliderRectangle();
-        
+        initColliderRectangle(DEFAULT_TOP_MARGIN, DEFAULT_LEFT_MARGIN, DEFAULT_BOTTOM_MARGIN, DEFAULT_RIGHT_MARGIN);
+
         //if NOCOLLIDE is enabled, disable the player's collision.
         if(Main.DEBUG_NOCOLLIDE) this.hasCollision = false;
 
@@ -95,6 +100,11 @@ public class Player extends Entity{
                 break;  //END case KEYBOARD
 
         }//end switch statement
+    }
+
+    //isPlayer(): returns true if the current entity is a player.
+    public boolean isPlayer(){
+        return true;
     }
 
 }

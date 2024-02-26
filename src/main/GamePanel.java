@@ -199,12 +199,20 @@ public class GamePanel extends JPanel {
             if(Main.DEBUG_SHOW_HITBOXES) {
                 g2D.setColor(Color.GREEN);
                 g2D.fillOval((x - cameraX / RENDER_SCALE) * RENDER_SCALE,(y - cameraY / RENDER_SCALE) * RENDER_SCALE,2*RENDER_SCALE,2*RENDER_SCALE);
+
                 Rectangle2D box = ent.collider;
                 int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
                 int boxY = (int)(box.getY() - cameraY / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
                 int boxSize = (int)(box.getWidth()) * RENDER_SCALE - (RENDER_SCALE);
                 g2D.drawRect(boxX, boxY, boxSize, boxSize);
-                g2D.drawString(ent.x + "," + ent.y, 128, 20);
+            }
+            if(Main.DEBUG_SHOW_COORDINATES) {
+                g2D.setColor(Color.WHITE);
+                if(ent.isPlayer()) {
+                    g2D.drawString("player: " + ent.x + "," + ent.y, 128, 20);
+                    g2D.drawString("collider: " + ent.collider.getX() + "," + ent.collider.getY(), 128, 40);
+                    g2D.drawString("camera: " + cameraX + "," + cameraY, 128, 60);
+                }
             }
         }
     }

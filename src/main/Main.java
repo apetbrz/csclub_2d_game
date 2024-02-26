@@ -42,6 +42,10 @@ public class Main {
     //RED boxes do not
     public static final boolean DEBUG_SHOW_HITBOXES = false;
 
+    //DEBUG_SHOW_COORDINATES: decides if player coords are rendered.
+    //shows coordinates to player and to collider box
+    public static final boolean DEBUG_SHOW_COORDINATES = true;
+
     //DEBUG_NOCOLLIDE: decides if the player has noclip or not
     public static final boolean DEBUG_NOCOLLIDE = false;
 
