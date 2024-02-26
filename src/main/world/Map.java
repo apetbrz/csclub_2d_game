@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Map {
+
+    //TODO: REMOVE TileType CLASS, REPLACE tileTypes WITH Tile[], REPLACE layout WITH int[][]
     public TileType[] tileTypes;
     public Tile[][] layout;
 
