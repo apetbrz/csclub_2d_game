@@ -25,6 +25,13 @@ tiles: 7
 
 spawn: 10,8
 
+entities: 5
+friend - critter - 8 - 1 - 14,8
+friend - critter - 8 - 1 - 14,8
+friend - critter - 8 - 1 - 14,8
+friend - critter - 8 - 1 - 14,8
+friend - snail - 8 - 1 - 14,8
+
 //layout:
 //WIDTH x HEIGHT grid of integer values
 //each integer represents a tile, following the

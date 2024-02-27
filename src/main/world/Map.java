@@ -1,13 +1,16 @@
 package main.world;
 
+import main.entities.Entity;
+
 import java.util.Arrays;
 import java.util.Objects;
 
 public class Map {
 
-    //TODO: REMOVE TileType CLASS, REPLACE tileTypes WITH Tile[], REPLACE layout WITH int[][]
     public TileType[] tileTypes;
     public Tile[][] layout;
+
+    public Entity[] initialEntities;
 
     public int spawnX;
     public int spawnY;
@@ -15,6 +18,7 @@ public class Map {
     public Map(){
         tileTypes = null;
         layout = null;
+        initialEntities = null;
     }
 
     public boolean isValid(){

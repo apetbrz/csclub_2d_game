@@ -187,7 +187,6 @@ public class GamePanel extends JPanel {
 
             AffineTransform transform = new AffineTransform();
 
-
             transform.scale(RENDER_SCALE,RENDER_SCALE);
 
             int x = ((int)(ent.x));

@@ -112,8 +112,12 @@ public class Entity {
 
     //moveTarget(): sets the X and Y main.world coordinates that the entity will move towards automatically
     public void moveTargetPoint(float X, float Y) {
-        targetX = X;
-        targetY = Y;
+        targetX = centerToCorner(X);
+        targetY = centerToCorner(Y);
+    }
+    public void moveTargetPoint(float[] xy){
+        targetX = centerToCorner(xy[0]);
+        targetY = centerToCorner(xy[1]);
     }
 
     //moveVector(): similar to moveTarget(), but relative to the entity itself (directional/WASD controls)
@@ -334,6 +338,7 @@ public class Entity {
     //setLocation: moves the entity to the specific coordinates in worldspace,
     //centered on the point
     public void setLocation(int x, int y){
+        Logger.log(0,name + " getting set to: " + x + "," + y);
         float deltaX = this.x + valueToCenterOfEntity(x);
         float deltaY = this.y + valueToCenterOfEntity(y);
         this.x += deltaX;
@@ -342,15 +347,26 @@ public class Entity {
         this.targetY = y;
         collider.setRect(collider.getX() + deltaX, collider.getY() + deltaY, collider.getWidth(), collider.getHeight());
     }
+    public void setTileLocation(int x, int y){
+        this.setLocation(x * Main.TILE_SIZE, y * Main.TILE_SIZE);
+    }
 
     //valueToCenterOfEntity(): turns an axis value (X/Y)
     //from the top left corner of the entity to the center of the entity
     public float valueToCenterOfEntity(float value){
+        return value + (float)this.size/2;
+    }
+
+    public float centerToCorner(float value){
         return value - (float)this.size/2;
     }
 
     //isPlayer(): returns true if the current entity is a player. i override this in Player.java
     public boolean isPlayer(){
         return false;
+    }
+
+    protected float[] getCenter() {
+        return new float[]{this.valueToCenterOfEntity(this.x), this.valueToCenterOfEntity(this.y)};
     }
 }

@@ -1,6 +1,8 @@
 package main;
 
 public class Main {
+    //TODO: MASTER CONSTANTS CLASS
+
     //TITLE: the name of the game, shown in the bar at the top of the window
     public static final String TITLE = "cs-club-2d-game INDEV";
 

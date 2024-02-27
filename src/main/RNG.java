@@ -12,12 +12,12 @@ public class RNG {
 
     //upTo(): returns a floating point number from 0 to maximum
     public static float upTo(int maximum){
-        return (float)ThreadLocalRandom.current().nextDouble(maximum);
+        return ThreadLocalRandom.current().nextFloat(maximum);
     }
 
     //maxDistance(): returns a floating point number from negative maximum to positive maximum
     public static float maxDistance(int maximum){
-        return (float)ThreadLocalRandom.current().nextDouble(-maximum, maximum);
+        return ThreadLocalRandom.current().nextFloat(-maximum, maximum);
     }
 
     //TODO: MORE RNG FUNCTIONS. AS I NEED THEM.

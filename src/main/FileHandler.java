@@ -1,5 +1,8 @@
 package main;
 
+import main.entities.Critter;
+import main.entities.Entity;
+import main.entities.Snail;
 import main.world.Map;
 import main.world.Tile;
 import main.world.TileType;
@@ -196,18 +199,19 @@ public class FileHandler {
             //each line of text = a row of tiles
             //each tile separated by whitespace (" ")
             else if (line.startsWith("layout:")) {
-                //initialize the 2D array with the given width and height
-                try {
-                    outputMap.layout = new Tile[mapHeight][mapWidth];
-                } catch (NegativeArraySizeException e) {
-                    //if the size wasnt gathered, the values are still negative one,
-                    //so a NegativeArraySizeException is thrown, and there is
-                    //cannot load without this, so crash
-                    Logger.log(2, "MAP SIZE MISSING BEFORE LAYOUT", true);
-                }
+                //if loadedTiles is null, the tile information wasn't
+                //loaded before the layout.
+                //cannot load without this, so crash
+                if (outputMap.tileTypes == null) Logger.log(2, "TILE INFO MISSING BEFORE LAYOUT", true);
+
+                //initialize the 2D array with the given width and height:
+                //if width/height are less than one (or negative), throw an error and crash
+                if(mapHeight < 1 || mapWidth < 1) Logger.log(2, "MAP SIZE MISSING/INVALID", true);
+                //otherwise, initialize the array
+                else outputMap.layout = new Tile[mapHeight][mapWidth];
 
                 //loop through the tile data lines
-                for (int i = 0; i < mapHeight; i++) {
+                for (int vertical = 0; vertical < mapHeight; vertical++) {
 
                     //grab the next current line (and increment the count)
                     if(lineNumber > maxLine){
@@ -217,45 +221,32 @@ public class FileHandler {
                     line = lines[lineNumber++];
 
                     //split it by spaces
-                    String[] row = null;
-                    try {
-                        row = line.split(" ");
-                    }catch(NullPointerException e){
-                        Logger.log(2,"END OF FILE REACHED, MISSING MAP DATA, CANNOT LOAD", true);
-                    }
+                    String[] row = line.split(" ");
 
                     //iterate through each integer in the line
                     //and load the appropriate tile into the 2D array
-                    for (int j = 0; j < mapWidth; j++) {
+                    for (int horizontal = 0; horizontal < mapWidth; horizontal++) {
                         //initialize tile value to -1 for default tile
                         int tileValue = -1;
 
                         //try to grab the next tile value
                         try {
-                            assert row != null;
-                            tileValue = Integer.parseInt(row[j]);
+                            tileValue = Integer.parseInt(row[horizontal]);
                         } catch (IndexOutOfBoundsException | NumberFormatException e) {
                             //if invalid data, log it and skip the rest of the loop iteration
-                            Logger.log(2, "MAP DATA INVALID AT POSITION " + j + "," + i);
+                            Logger.log(2, "MAP DATA INVALID AT POSITION " + horizontal + "," + vertical);
                             continue;
                         }
 
                         //calculate the X and Y coordinates of the tile
-                        int x = j * Main.TILE_SIZE;
-                        int y = i * Main.TILE_SIZE;
-
-                        //if loadedTiles is null, the tile information wasn't found
-                        //cannot load without this, so crash
-                        if (outputMap.tileTypes == null) Logger.log(2, "TILE INFO MISSING BEFORE LAYOUT", true);
+                        int x = horizontal * Main.TILE_SIZE;
+                        int y = vertical * Main.TILE_SIZE;
 
                         //if tile value and position is valid, we create and store the tile object
-                        try {
-                            outputMap.layout[i][j] = new Tile(outputMap.tileTypes[tileValue], x, y);
-                        }catch(ArrayIndexOutOfBoundsException e){
-                            Logger.log(2, "LINE MISSING AT LINE " + lineNumber);
-                        }
+                        outputMap.layout[vertical][horizontal] = new Tile(outputMap.tileTypes[tileValue], x, y);
                     }
                 }
+                //end layout: section
             }
 
             //spawn: holds the coordinate of the tile that the player will spawn in
@@ -266,8 +257,52 @@ public class FileHandler {
                 String[] tileCoordinates = line.substring(line.indexOf(':') + 1).trim().split(",");
 
                 //store the values
-                outputMap.spawnX = Integer.parseInt(tileCoordinates[0].trim()) * Main.TILE_SIZE + Main.TILE_SIZE/2;
-                outputMap.spawnY = Integer.parseInt(tileCoordinates[1].trim()) * Main.TILE_SIZE + Main.TILE_SIZE/2;
+                outputMap.spawnX = Integer.parseInt(tileCoordinates[0].trim());
+                outputMap.spawnY = Integer.parseInt(tileCoordinates[1].trim());
+            }
+
+            //entities: holds entities that are spawned on load
+            //with the format:
+            //entities: [number of entities]
+            //[entity/file name] - [prefab AI type] - [size] - [movespeed] - [spawn x coord],[spawn y coord]
+            else if(line.startsWith("entities:")){
+                //grab how many entities we expect to see
+                int entityCount = Integer.parseInt(line.substring(line.indexOf(':') + 1).trim());
+
+                //initialize the array
+                outputMap.initialEntities = new Entity[entityCount];
+
+                //iterate thru the lines, grabbing every entity
+                for(int i = 0; i < entityCount; i++){
+                    //grab the next line
+                    if(lineNumber > maxLine){
+                        Logger.log(1,"END OF FILE REACHED, MISSING ENTITY DATA");
+                        break;
+                    }
+                    line = lines[lineNumber++];
+
+                    String[] entityInfo = line.split("-");
+
+                    String entityName = entityInfo[0].trim();
+                    String entityType = entityInfo[1].trim();
+                    int entitySize = Integer.parseInt(entityInfo[2].trim());
+                    int entityMovespeed = Integer.parseInt(entityInfo[3].trim());
+                    String[] entitySpawnInfo = entityInfo[4].split(",");
+
+                    switch(entityType){
+                        case "critter":
+                            outputMap.initialEntities[i] = new Critter(entityName,entitySize,entityMovespeed);
+                            break;
+                        case "snail":
+                            outputMap.initialEntities[i] = new Snail(entityName,entitySize,entityMovespeed);
+                            break;
+                    }
+
+                    int entitySpawnX = Integer.parseInt(entitySpawnInfo[0].trim());
+                    int entitySpawnY = Integer.parseInt(entitySpawnInfo[1].trim());
+
+                    outputMap.initialEntities[i].setTileLocation(entitySpawnX,entitySpawnY);
+                }
             }
 
             //if no other command is met, we have a line that we do not understand
@@ -278,7 +313,7 @@ public class FileHandler {
 
         }   //end file loop
 
-        //throw error if the map is invalid
+        //check validity of map, throw a warning if an error is found
         if(!outputMap.isValid()) Logger.log(2, "ERROR IN MAP LAYOUT");
         return outputMap;
     }

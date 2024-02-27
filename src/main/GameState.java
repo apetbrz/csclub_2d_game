@@ -4,6 +4,7 @@ import main.entities.*;
 import main.world.Map;
 import main.world.Tile;
 
+import javax.print.attribute.standard.Finishings;
 import java.util.ArrayList;
 
 public class GameState {
@@ -15,7 +16,7 @@ public class GameState {
     public GamePanel panel;
 
     //entityArray: a list of all entities currently loaded
-    public ArrayList<Entity> entityArray;
+    public Entity[] entityArray;
 
     //player: the player entity. "you"
     public Player player;
@@ -24,70 +25,48 @@ public class GameState {
     public Map loadedMap;
 
     public GameState() {
+        //link all entities to this GameState object,
+        //so that all entities can read the state
+        //basically a "global state"
+        Entity.linkGameState(this);
+
         //we cannot create the map until we read the file
         loadedMap = null;
 
         //load the map
-        //TODO: map selection
-        loadedMap = FileHandler.loadMap(Main.MAP_SELECTION);
-
-        //create the entity array, with an initial size of 16
-        //TODO: MASTER CONSTANTS CLASS
-        entityArray = new ArrayList<>(16);
-
-        //create the player
-        player = new Player();
-
-        //add the player to the array
-        entityArray.add(player);
-
-        //link all entities to this GameState object,
-        //so that all entities can read the state
-        //this is called "global state"
-        Entity.linkGameState(this);
-
-        //set the player's location to the spawn point provided by the map.
-        player.setLocation(loadedMap.spawnX, loadedMap.spawnY);
+        loadMap(Main.MAP_SELECTION);
 
         //as an example Entity, i created and added 12 Critters
         //thank gabby for choosing the number twelve
         //TODO: ADD ENTITY SPAWNING TO MAP FILES
-        Critter lilguy1 = new Critter("friend",8,1);
-        lilguy1.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy1);
-        Critter lilguy2 = new Critter("friend",8,1);
-        lilguy2.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy2);
-        Critter lilguy3 = new Critter("friend",8,1);
-        lilguy3.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy3);
-        Critter lilguy4 = new Critter("friend",8,1);
-        lilguy4.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy4);
-        Critter lilguy5 = new Critter("friend",8,1);
-        lilguy5.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy5);
-        Critter lilguy6 = new Critter("friend",8,1);
-        lilguy6.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy6);
-        Critter lilguy7 = new Critter("friend",8,1);
-        lilguy7.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy7);
-        Critter lilguy8 = new Critter("friend",8,1);
-        lilguy8.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy8);
-        Critter lilguy9 = new Critter("friend",8,1);
-        lilguy9.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy9);
-        Critter lilguy10 = new Critter("friend",8,1);
-        lilguy10.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy10);
-        Critter lilguy11 = new Critter("friend",8,1);
-        lilguy11.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy11);
-        Critter lilguy12 = new Critter("friend",8,1);
-        lilguy12.setLocation((int)player.x,(int)player.y);
-        entityArray.add(lilguy12);
+    }
+
+    private void loadMap(String mapSelection){
+
+        //TODO: map selection
+        //load the map
+        loadedMap = FileHandler.loadMap(Main.MAP_SELECTION);
+
+        //create the entity array, with an initial size of 16
+        entityArray = new Entity[loadedMap.initialEntities.length + 1];
+
+        //create the player
+        player = new Player();
+
+        //set the player's location to the spawn point provided by the map.
+        player.setTileLocation(loadedMap.spawnX, loadedMap.spawnY);
+
+        //add the player to the array
+        entityArray[0] = player;
+
+        //add every other entity to the array
+        for(int i = 0; i < loadedMap.initialEntities.length; i++){
+            entityArray[i+1] = loadedMap.initialEntities[i];
+        }
+
+        //erase the initial entity array from the map, as we no longer need it
+        //if we want it back, reload the map
+        loadedMap.initialEntities = null;
     }
 
     //update(): ran once per frame, where all the game processing happens
@@ -117,7 +96,7 @@ public class GameState {
     }
 
     //getEntities(): returns the entity array
-    public ArrayList<Entity> getEntities() {
+    public Entity[] getEntities() {
         return entityArray;
     }
 
