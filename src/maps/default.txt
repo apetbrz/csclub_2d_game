@@ -28,7 +28,7 @@ spawn: 10,8
 //entities:
 //lists the entities that will spawn on map load
 //with the format:
-//entities [NUMBER OF ENTITIES]
+//entities: [NUMBER OF ENTITIES]
 //[ENTITY/FILE NAME] - [ENTITY AI TYPE (classes that implement Entity and override update())] - [SIZE] - [MOVEMENT SPEED] - [SPAWN X],[SPAWN Y]
 entities: 5
 friend - critter - 8 - 1 - 14,8
