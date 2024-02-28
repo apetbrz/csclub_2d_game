@@ -20,8 +20,12 @@ Files:
 - Map: a "map" object, storing relevant data for loaded maps.
 - Tile: each square in a map
 - TileType: used for translating map file data to Tile information
-- maps/ folder: where map files are located.
-- textures/ folder: where textuer files are located.
+- RNG: used wherever random numbers are wanted, has specific tools
+
+Folders:
+- maps/: where map files are located.
+- textures/: where textuer files are located.
+- entities/: where entity types are located.
 
 Notable locations:
 - map selection: Main.MAP_SELECTION
