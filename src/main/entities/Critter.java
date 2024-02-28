@@ -27,7 +27,7 @@ public class Critter extends Entity{
     public Critter(){
         super();
     }
-    public Critter(String name, int size, int moveSpeed) {
+    public Critter(String name, int size, float moveSpeed) {
         super(name, size, moveSpeed);
     }
 

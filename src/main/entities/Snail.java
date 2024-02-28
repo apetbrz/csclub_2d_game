@@ -8,7 +8,7 @@ public class Snail extends Entity{
     public Snail(){
         super();
     }
-    public Snail(String name, int size, int moveSpeed) {
+    public Snail(String name, int size, float moveSpeed) {
         super(name, size, moveSpeed);
     }
 

@@ -35,7 +35,7 @@ friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
-friend - snail - 8 - 1 - 14,8
+friend - snail - 8 - 0.25 - 14,8
 
 //layout:
 //WIDTH x HEIGHT grid of integer values

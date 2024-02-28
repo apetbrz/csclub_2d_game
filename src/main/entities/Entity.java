@@ -51,7 +51,7 @@ public class Entity {
     public Entity(){
         hasCollision = true;
     }
-    public Entity(String name, int size, int moveSpeed) {
+    public Entity(String name, int size, float moveSpeed) {
         this();
 
         this.name = name;

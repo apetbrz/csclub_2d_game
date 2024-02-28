@@ -127,7 +127,6 @@ public class FileHandler {
         int maxLine = lines.length - 1;
 
         //loop until out lines in file:
-        //TODO: replace with for loop, i was lazy
         while(lineNumber < maxLine) {
 
             //grab the next current line (and increment the count)
@@ -140,7 +139,7 @@ public class FileHandler {
                 continue;
             }
 
-            //size: holds the size of the map
+            //size: holds the size of the map //TODO: REMOVE? DYNAMIC SIZING FROM LAYOUT??
             //with the format: [width]x[height] (lowercase x)
             else if (line.startsWith("size:")) {
                 //grab the data (stored after the colon) and split it by the 'x' in the middle
@@ -153,7 +152,7 @@ public class FileHandler {
 
             //tiles: holds the individual data
             //with the format:
-            //tiles: [number of tiles]
+            //tiles: [number of tiles] TODO: REMOVE TILE COUNT REQUIREMENT
             //[tile code] - [tile name/file name] - [boolean for collision value]
             else if (line.startsWith("tiles:")) {
 
@@ -263,7 +262,7 @@ public class FileHandler {
 
             //entities: holds entities that are spawned on load
             //with the format:
-            //entities: [number of entities]
+            //entities: [number of entities] TODO: REMOVE ENTITY COUNT REQUIREMENT
             //[entity/file name] - [prefab AI type] - [size] - [movespeed] - [spawn x coord],[spawn y coord]
             else if(line.startsWith("entities:")){
                 //grab how many entities we expect to see
@@ -286,7 +285,7 @@ public class FileHandler {
                     String entityName = entityInfo[0].trim();
                     String entityType = entityInfo[1].trim();
                     int entitySize = Integer.parseInt(entityInfo[2].trim());
-                    int entityMovespeed = Integer.parseInt(entityInfo[3].trim());
+                    float entityMovespeed = Float.parseFloat(entityInfo[3].trim());
                     String[] entitySpawnInfo = entityInfo[4].split(",");
 
                     switch(entityType){
