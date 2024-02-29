@@ -29,13 +29,14 @@ spawn: 10,8
 //lists the entities that will spawn on map load
 //with the format:
 //entities: [NUMBER OF ENTITIES]
-//[ENTITY/FILE NAME] - [ENTITY AI TYPE (classes that implement Entity and override update())] - [SIZE] - [MOVEMENT SPEED] - [SPAWN X],[SPAWN Y]
+//[ENTITY/FILE NAME] - [ENTITY AI TYPE (classes that implement Entity and override update())] - [SIZE] - [MOVEMENT SPEED] - [SPAWN X],[SPAWN Y] ( - [BOOLEAN FOR DIRECTIONALITY] OPTIONAL)
+
 entities: 5
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
-friend - snail - 8 - 0.25 - 14,8
+player - snail - 8 - 0.25 - 14,8 - true
 
 //layout:
 //WIDTH x HEIGHT grid of integer values
@@ -64,7 +65,7 @@ layout:
 0 0 0 0 0 0 0 0 1 0 5 4 4 4 4 4 4 0 3 3 0 0 0 0 0 0 0 0 0 3 3 3 3 3 3 0 0 0 0 1 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 1 0 5 4 4 4 4 4 5 0 0 3 3 3 3 3 3 3 3 3 3 3 3 6 6 6 3 3 3 0 0 1 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 1 0 5 4 4 4 4 4 5 0 0 0 0 0 0 0 0 0 0 0 3 3 6 6 6 6 3 3 3 3 0 1 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 1 0 5 5 5 5 5 5 5 0 0 0 1 0 0 0 0 0 0 0 0 3 3 3 3 3 3 1 3 3 3 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 1 0 5 4 5 5 5 5 5 0 0 0 1 0 0 0 0 0 0 0 0 3 3 3 3 3 3 1 3 3 3 1 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 3 3 3 3 3 3 3 1 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

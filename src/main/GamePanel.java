@@ -139,6 +139,7 @@ public class GamePanel extends JPanel {
 
                 //try/catch tries to grab the tile at the coordinate j,i
                 //if out of bounds, it grabs the default tile image instead
+                //TODO: replace try/catch with if/else
                 try {
                     image = map[i][j].image;
                 }catch(ArrayIndexOutOfBoundsException | NullPointerException e){
@@ -162,8 +163,8 @@ public class GamePanel extends JPanel {
                 g2D.drawImage(image, transform, null);
 
                 //draw hitboxes if desired
-                //TODO: scaling of debug hitboxes
                 if(Main.DEBUG_SHOW_HITBOXES) {
+                    //TODO: replace try/catch with if/else
                     try {
                         g2D.setColor(map[i][j].hasCollision ? Color.RED : Color.GREEN);
                         g2D.setStroke(HITBOX_STROKE);
@@ -175,29 +176,42 @@ public class GamePanel extends JPanel {
                     }catch(ArrayIndexOutOfBoundsException e){
                         //do nothing
                     }
-                }
+                }//end hitbox draw
             }
-        }
+        }//end 2D loop
     }
 
     //drawEntities(): draws all entities loaded in the GameState object
     private void drawEntities(Graphics2D g2D){
+
+        //this AffineTransform object will let us move/scale the image appropriately
+        AffineTransform transform;
+
+        //iterate through every entity in the GameState's loaded entities
+        //TODO: FIX ORDER, SO PLAYER IS ON TOP?
         for(Entity ent : state.getEntities()){
-            BufferedImage image = ent.image;
 
-            AffineTransform transform = new AffineTransform();
+            //reset the transform
+            transform = new AffineTransform();
 
+            //scale to the RENDER_SCALE of the game
             transform.scale(RENDER_SCALE,RENDER_SCALE);
 
-            int x = ((int)(ent.x));
-            int y = ((int)(ent.y));
-            transform.translate((float)(x - cameraX / RENDER_SCALE), (float)(y - cameraY / RENDER_SCALE));
+            //grab the entity's coordinates
+            //TODO: DECIDE IF I WANT SUB-PIXEL ENTITY RENDERING AT >1 RENDER_SCALE VALUES OR NOT (FLOAT x/y = YES, INT x/y = NO!!)
+            float x = ent.x;
+            float y = ent.y;
 
-            g2D.drawImage(image, transform, null);
+            //translate to the correct position, in screenspace (based on entity and camera positions)
+            transform.translate((x - (float)(cameraX / RENDER_SCALE)), (y - (float)(cameraY / RENDER_SCALE)));
 
+            //draw the entity
+            g2D.drawImage(ent.image, transform, null);
+
+            //draw hitboxes if desired
             if(Main.DEBUG_SHOW_HITBOXES) {
                 g2D.setColor(Color.GREEN);
-                g2D.fillOval((x - cameraX / RENDER_SCALE) * RENDER_SCALE,(y - cameraY / RENDER_SCALE) * RENDER_SCALE,2*RENDER_SCALE,2*RENDER_SCALE);
+                g2D.fillOval((int) ((x - cameraX / RENDER_SCALE) * RENDER_SCALE), (int) ((y - cameraY / RENDER_SCALE) * RENDER_SCALE),2*RENDER_SCALE,2*RENDER_SCALE);
 
                 Rectangle2D box = ent.collider;
                 int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
@@ -205,22 +219,22 @@ public class GamePanel extends JPanel {
                 int boxSize = (int)(box.getWidth()) * RENDER_SCALE - (RENDER_SCALE);
                 g2D.drawRect(boxX, boxY, boxSize, boxSize);
             }
-            if(Main.DEBUG_SHOW_COORDINATES) {
-                g2D.setColor(Color.WHITE);
-                if(ent.isPlayer()) {
-                    g2D.drawString("player: " + ent.x + "," + ent.y, 128, 20);
-                    g2D.drawString("collider: " + ent.collider.getX() + "," + ent.collider.getY(), 128, 40);
-                    g2D.drawString("camera: " + cameraX + "," + cameraY, 128, 60);
-                }
-            }
         }
     }
 
     //drawUI(): draw game information, currently only FPS display
     private void drawUI(Graphics2D g2D) {
         g2D.setColor(Color.WHITE);
-        g2D.setFont(g2D.getFont().deriveFont(Font.PLAIN, g2D.getFont().getSize() * RENDER_SCALE));
+        g2D.setFont(g2D.getFont().deriveFont(Font.PLAIN, (float) (g2D.getFont().getSize()/2.0 * RENDER_SCALE)));
         g2D.drawString("fps:"+(double)((int)(displayFPS * 100))/100.0, 10, 12*RENDER_SCALE);
+
+        //draw coordinates on-screen if desired (
+        if(Main.DEBUG_SHOW_COORDINATES) {
+            Player p = state.player;
+            g2D.drawString("player: " + p.x + "," + p.y, 64 * RENDER_SCALE, 20);
+            g2D.drawString("collider: " + p.collider.getX() + "," + p.collider.getY(), 64 * RENDER_SCALE, 40);
+            g2D.drawString("camera: " + cameraX + "," + cameraY, 64 * RENDER_SCALE, 60);
+        }
     }
 
     //updateFPS(): takes the time of the previous frame (in milliseconds)

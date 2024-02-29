@@ -142,12 +142,15 @@ public class FileHandler {
             //size: holds the size of the map //TODO: REMOVE? DYNAMIC SIZING FROM LAYOUT??
             //with the format: [width]x[height] (lowercase x)
             else if (line.startsWith("size:")) {
+
                 //grab the data (stored after the colon) and split it by the 'x' in the middle
                 String[] widthAndHeight = line.substring(line.indexOf(':') + 1).trim().split("x");
 
                 //store the values
                 mapWidth = Integer.parseInt(widthAndHeight[0].trim());
                 mapHeight = Integer.parseInt(widthAndHeight[1].trim());
+
+                Logger.log(0,"map size loaded");
             }
 
             //tiles: holds the individual data
@@ -155,6 +158,8 @@ public class FileHandler {
             //tiles: [number of tiles] TODO: REMOVE TILE COUNT REQUIREMENT
             //[tile code] - [tile name/file name] - [boolean for collision value]
             else if (line.startsWith("tiles:")) {
+
+                Logger.log(0,"loading tile data");
 
                 //grab the number of tiles (integer after the colon)
                 int numberOfTiles = Integer.parseInt(line.substring(line.indexOf(":") + 1).trim());
@@ -191,6 +196,8 @@ public class FileHandler {
                     //store it
                     outputMap.tileTypes[tileIndex] = tileToLoad;
                 }
+
+                Logger.log(0,"tiles loaded");
             }
 
             //layout: holds the 2D tile array data
@@ -198,6 +205,9 @@ public class FileHandler {
             //each line of text = a row of tiles
             //each tile separated by whitespace (" ")
             else if (line.startsWith("layout:")) {
+
+                Logger.log(0,"loading map layout");
+
                 //if loadedTiles is null, the tile information wasn't
                 //loaded before the layout.
                 //cannot load without this, so crash
@@ -245,6 +255,9 @@ public class FileHandler {
                         outputMap.layout[vertical][horizontal] = new Tile(outputMap.tileTypes[tileValue], x, y);
                     }
                 }
+
+                Logger.log(0,"map loaded");
+
                 //end layout: section
             }
 
@@ -252,19 +265,26 @@ public class FileHandler {
             //with the format: [x coord],[y coord]
             //0,0 represents the top left tile
             else if(line.startsWith("spawn:")){
+
                 //grab the data (stored after the colon) and split it by the ',' in the middle
                 String[] tileCoordinates = line.substring(line.indexOf(':') + 1).trim().split(",");
 
                 //store the values
                 outputMap.spawnX = Integer.parseInt(tileCoordinates[0].trim());
                 outputMap.spawnY = Integer.parseInt(tileCoordinates[1].trim());
+
+                Logger.log(0,"spawn point loaded");
+
             }
 
             //entities: holds entities that are spawned on load
             //with the format:
             //entities: [number of entities] TODO: REMOVE ENTITY COUNT REQUIREMENT
-            //[entity/file name] - [prefab AI type] - [size] - [movespeed] - [spawn x coord],[spawn y coord]
+            //[entity/file name] - [prefab AI type] - [size] - [movespeed] - [spawn x coord],[spawn y coord] ( - [boolean entity has directionality] OPTIONAL)
             else if(line.startsWith("entities:")){
+
+                Logger.log(0, "loading entities");
+
                 //grab how many entities we expect to see
                 int entityCount = Integer.parseInt(line.substring(line.indexOf(':') + 1).trim());
 
@@ -280,28 +300,38 @@ public class FileHandler {
                     }
                     line = lines[lineNumber++];
 
+                    //split up the entity's data
                     String[] entityInfo = line.split("-");
 
+                    //grab the relevant values and store them in convenient variables
                     String entityName = entityInfo[0].trim();
                     String entityType = entityInfo[1].trim();
                     int entitySize = Integer.parseInt(entityInfo[2].trim());
                     float entityMovespeed = Float.parseFloat(entityInfo[3].trim());
                     String[] entitySpawnInfo = entityInfo[4].split(",");
-
-                    switch(entityType){
-                        case "critter":
-                            outputMap.initialEntities[i] = new Critter(entityName,entitySize,entityMovespeed);
-                            break;
-                        case "snail":
-                            outputMap.initialEntities[i] = new Snail(entityName,entitySize,entityMovespeed);
-                            break;
-                    }
-
                     int entitySpawnX = Integer.parseInt(entitySpawnInfo[0].trim());
                     int entitySpawnY = Integer.parseInt(entitySpawnInfo[1].trim());
 
+                    //for the boolean, we assume false, unless there *is* something there
+                    boolean entityDirectional = false;
+                    //check if theres a 6th data value
+                    if(entityInfo.length == 6){
+                        //if so, grab it (can be true/false, but false is kinda redundant lol
+                        entityDirectional = Boolean.parseBoolean(entityInfo[5].trim());
+                    }
+
+                    //check what entity type it is, and create that entity
+                    //TODO: MOVE ENTITY TYPING OUT OF FileHandler!!!! SHOULD BE SOMEWHERE EASIER TO MODIFY
+                    switch (entityType) {
+                        case "critter" -> outputMap.initialEntities[i] = new Critter(entityName, entitySize, entityMovespeed, entityDirectional);
+                        case "snail" -> outputMap.initialEntities[i] = new Snail(entityName, entitySize, entityMovespeed, entityDirectional);
+                    }
+
+                    //finally, move the entity to its spawn point
                     outputMap.initialEntities[i].setTileLocation(entitySpawnX,entitySpawnY);
                 }
+
+                Logger.log(0, "entities loaded");
             }
 
             //if no other command is met, we have a line that we do not understand
@@ -312,8 +342,12 @@ public class FileHandler {
 
         }   //end file loop
 
+        Logger.log(0, "checking map");
         //check validity of map, throw a warning if an error is found
         if(!outputMap.isValid()) Logger.log(2, "ERROR IN MAP LAYOUT");
+
+        Logger.log(0, "map loaded!");
+
         return outputMap;
     }
 

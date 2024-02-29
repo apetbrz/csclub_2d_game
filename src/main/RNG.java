@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RNG {
     //RNG is a helper class, to deal with randomly generated numbers
 
-    //percentage(): returns a floating point number from 0 to 99.999999999999 or however many digits floats have
+    //percentage(): returns a floating point number from 0 to 99.999999999999 (or however many decimal places floats have)
     public static float percentage(){
         return ThreadLocalRandom.current().nextFloat() * 100;
     }

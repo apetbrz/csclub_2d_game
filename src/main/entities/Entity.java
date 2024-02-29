@@ -1,10 +1,9 @@
 package main.entities;
 import main.*;
 import main.world.Tile;
-import org.w3c.dom.css.Rect;
 
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 
 public class Entity {
     //game: the GameState object, so the entity can interact with other things
@@ -14,14 +13,14 @@ public class Entity {
     public String name;
 
     //image: the sprite of the entity
-    public BufferedImage image;
+    public Image image;
 
     //up/left/down/rightImage: these hold the four images used for the four directions
     //if hasDirectionality == false, these are all null.
-    private BufferedImage upImage;
-    private BufferedImage leftImage;
-    private BufferedImage downImage;
-    private BufferedImage rightImage;
+    private Image upImage;
+    private Image leftImage;
+    private Image downImage;
+    private Image rightImage;
 
     //hasDirectionality: states whether the entity rotates/changes image as it changes direction
     public boolean hasDirectionality;
@@ -62,6 +61,18 @@ public class Entity {
 
         initColliderRectangle();
     }
+    public Entity(String name, int size, float moveSpeed, boolean directional){
+        this();
+
+        this.name = name;
+        this.size = size;
+        this.moveSpeed = moveSpeed;
+
+        if(directional) setImagesWithDirectionality(name);
+        else setImage(name);
+
+        initColliderRectangle();
+    }
 
     //initColliderRectangle: initializes the collider, relative to the Entity's pos/size
     protected void initColliderRectangle(){
@@ -93,8 +104,10 @@ public class Entity {
 
     //setImage(): takes the name of a file in the textures folder
     //and loads that into the entity's image
+    //automatically scales the image to be the entity's size
+    //images won't look as good if they scale weird, so try to keep image size equal to entity size
     protected void setImage(String fileName) {
-        image = FileHandler.loadImage(fileName);
+        image = FileHandler.loadImage(fileName).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
     }
 
     //setImagesWithDirectionality(): same as above, but
@@ -102,10 +115,10 @@ public class Entity {
     protected void setImagesWithDirectionality(String fileName){
         hasDirectionality = true;
 
-        upImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_UP_SUFFIX);
-        leftImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_LEFT_SUFFIX);
-        downImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_DOWN_SUFFIX);
-        rightImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_RIGHT_SUFFIX);
+        upImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_UP_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
+        leftImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_LEFT_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
+        downImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_DOWN_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
+        rightImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_RIGHT_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
 
         image = downImage;
     }
@@ -240,17 +253,24 @@ public class Entity {
         //we change the image rendered based on what direction they are moving
         if(hasDirectionality) {
             //currently prioritizes horizontal movement over vertical movement
-            //(if moving diagonal, entity will face left/right
+            //(if moving diagonal, entity will face left/right)
             //TODO: keep first direction traveled from standstill (how? we'll see)
 
-            // <-
-            if (deltaX < 0) image = leftImage;
-            // ->
-            else if (deltaX > 0) image = rightImage;
-            // ^
-            else if (deltaY < 0) image = upImage;
-            // V
-            else if (deltaY > 0) image = downImage;
+            //check if standing still
+            if(deltaX == 0 && deltaY == 0){
+                //do nothing, this keeps the same image when you stop moving
+            }
+            //otherwise, compare the magnitudes of the two axes
+            //if deltaX is smaller than deltaY
+            else if(Math.abs(deltaX) < Math.abs(deltaY)){
+                //set the image based on the vertical direction
+                image = deltaY < 0 ? upImage : downImage;
+            }
+            //otherwise, if deltaX is larger than deltaY
+            else{
+                //set the image based on the horizontal direction
+                image = deltaX < 0 ? leftImage : rightImage;
+            }
         }
     }
 

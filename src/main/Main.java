@@ -1,5 +1,7 @@
 package main;
 
+import java.awt.*;
+
 public class Main {
     //TODO: MASTER CONSTANTS CLASS
 
@@ -24,6 +26,10 @@ public class Main {
     //i use 2, so at TILE_SIZE = 32,
     //the final tiles will be rendered as 64x64 pixels on the screen
     public static final int RENDER_SCALE = 2;
+
+    //DEFAULT_IMAGE_SCALING_MODE: the scale algorithm to use when scaling images
+    //i.e. when scaling entity sprites to their size value
+    public static final int DEFAULT_IMAGE_SCALING_MODE = Image.SCALE_REPLICATE;
 
     //CONTROL_TYPE: the control scheme.
     //    0: WASD movement

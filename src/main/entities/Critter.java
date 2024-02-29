@@ -27,8 +27,8 @@ public class Critter extends Entity{
     public Critter(){
         super();
     }
-    public Critter(String name, int size, float moveSpeed) {
-        super(name, size, moveSpeed);
+    public Critter(String name, int size, float moveSpeed, boolean directional) {
+        super(name, size, moveSpeed, directional);
     }
 
     //update(): overrides Entity::update, adding new functionality
@@ -61,7 +61,8 @@ public class Critter extends Entity{
             //to avoid getting stuck walking into walls, we do this algorithm:
             //we check to see if the tile (relative to the Critter),
             //in that direction, has collision or not.
-            //if it does (for each axis, separately), we invert that axis' random direction
+            //if it does (for each axis, separately), we invert that axis' direction
+            //this does a good enough job of walking away from walls
             if(state.tileAt(x + randX,y).hasCollision) randX = -randX;
             if(state.tileAt(y,y + randY).hasCollision) randY = -randY;
 

@@ -8,8 +8,8 @@ public class Snail extends Entity{
     public Snail(){
         super();
     }
-    public Snail(String name, int size, float moveSpeed) {
-        super(name, size, moveSpeed);
+    public Snail(String name, int size, float moveSpeed, boolean directional) {
+        super(name, size, moveSpeed, directional);
     }
 
     //update(): overrides Entity::update, adding new functionality
