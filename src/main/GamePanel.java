@@ -203,11 +203,11 @@ public class GamePanel extends JPanel {
 
             //grab the entity's coordinates
             //TODO: DECIDE IF I WANT SUB-PIXEL ENTITY RENDERING AT >1 RENDER_SCALE VALUES OR NOT (FLOAT x/y = YES, INT x/y = NO!!)
-            float x = ent.x;
-            float y = ent.y;
+            int x = (int) ent.x;
+            int y = (int) ent.y;
 
             //translate to the correct position, in screenspace (based on entity and camera positions)
-            transform.translate((x - (float)(cameraX / RENDER_SCALE)), (y - (float)(cameraY / RENDER_SCALE)));
+            transform.translate((x - (float)(cameraX) / RENDER_SCALE), (y - (float)(cameraY) / RENDER_SCALE));
 
             //draw the entity
             g2D.drawImage(ent.image, transform, null);
@@ -215,7 +215,7 @@ public class GamePanel extends JPanel {
             //draw hitboxes if desired
             if(Main.DEBUG_SHOW_HITBOXES) {
                 g2D.setColor(ent.hasCollision ? Color.GREEN : Color.RED);
-                g2D.fillOval((int) ((x - cameraX / RENDER_SCALE) * RENDER_SCALE), (int) ((y - cameraY / RENDER_SCALE) * RENDER_SCALE),2*RENDER_SCALE,2*RENDER_SCALE);
+                g2D.fillOval(((x - cameraX / RENDER_SCALE) * RENDER_SCALE), ((y - cameraY / RENDER_SCALE) * RENDER_SCALE),2*RENDER_SCALE,2*RENDER_SCALE);
 
                 Rectangle2D box = ent.collider;
                 int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);

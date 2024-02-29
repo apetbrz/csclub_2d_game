@@ -67,7 +67,7 @@ public class Critter extends Entity{
             if(state.tileAt(y,y + randY).hasCollision) randY = -randY;
 
             //finally, we move the Critter that random distance
-            moveRelativeToPosition(randX,randY);
+            moveRelative(randX,randY);
         }
     }
 

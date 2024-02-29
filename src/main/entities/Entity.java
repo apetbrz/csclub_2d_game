@@ -123,18 +123,18 @@ public class Entity {
         image = downImage;
     }
 
-    //moveTarget(): sets the X and Y main.world coordinates that the entity will move towards automatically
+    //moveTargetPoint(): sets the X and Y main.world coordinates that the entity will move towards automatically (centered)
     public void moveTargetPoint(float X, float Y) {
-        targetX = centerToCorner(X);
-        targetY = centerToCorner(Y);
+        targetX = centerToTopLeftEdge(X);
+        targetY = centerToTopLeftEdge(Y);
     }
     public void moveTargetPoint(float[] xy){
-        targetX = centerToCorner(xy[0]);
-        targetY = centerToCorner(xy[1]);
+        targetX = centerToTopLeftEdge(xy[0]);
+        targetY = centerToTopLeftEdge(xy[1]);
     }
 
-    //moveVector(): similar to moveTarget(), but relative to the entity itself (directional/WASD controls)
-    public void moveRelativeToPosition(float X, float Y){
+    //moveRelative(): similar to moveTarget(), but relative to the entity itself (useful for directional/WASD controls)
+    public void moveRelative(float X, float Y){
         targetX = this.x + X;
         targetY = this.y + Y;
     }
@@ -357,9 +357,8 @@ public class Entity {
     //setLocation: moves the entity to the specific coordinates in worldspace,
     //centered on the point
     public void setLocation(int x, int y){
-        Logger.log(0,name + " getting set to: " + x + "," + y);
-        float deltaX = this.x + valueToCenterOfEntity(x);
-        float deltaY = this.y + valueToCenterOfEntity(y);
+        float deltaX = this.x + topLeftEdgeToCenter(x);
+        float deltaY = this.y + topLeftEdgeToCenter(y);
         this.x += deltaX;
         this.y += deltaY;
         this.targetX = x;
@@ -370,14 +369,22 @@ public class Entity {
         this.setLocation(x * Main.TILE_SIZE, y * Main.TILE_SIZE);
     }
 
-    //valueToCenterOfEntity(): turns an axis value (X/Y)
-    //from the top left corner of the entity to the center of the entity
-    public float valueToCenterOfEntity(float value){
+    //topLeftEdgeToCenter(): takes a coordinate from the top/left edge and returns a centered one
+    public float topLeftEdgeToCenter(float value){
         return value + (float)this.size/2;
     }
+    //topLeftCornerToCenter(): similar as above, but with an array (assuming [x,y], like a coordinate)
+    public float[] topLeftCornerToCenter(float[] coord){
+        return new float[]{topLeftEdgeToCenter(coord[0]), topLeftEdgeToCenter(coord[1])};
+    }
 
-    public float centerToCorner(float value){
+    //centerToTopLeftEdge: similar to topLeftEdgeToCenter() but the other way around
+    public float centerToTopLeftEdge(float value){
         return value - (float)this.size/2;
+    }
+    //centerToTopLeftCorner(): similar as above, but with an array (assuming [x,y], like a coordinate)
+    public float[] centerToTopLeftCorner(float[] coord){
+        return new float[]{centerToTopLeftEdge(coord[0]), centerToTopLeftEdge(coord[1])};
     }
 
     //isPlayer(): returns true if the current entity is a player. i override this in Player.java
@@ -386,6 +393,6 @@ public class Entity {
     }
 
     protected float[] getCenter() {
-        return new float[]{this.valueToCenterOfEntity(this.x), this.valueToCenterOfEntity(this.y)};
+        return new float[]{this.topLeftEdgeToCenter(this.x), this.topLeftEdgeToCenter(this.y)};
     }
 }

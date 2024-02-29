@@ -221,7 +221,7 @@ public class FileHandler {
 
                 //loop through the tile data lines
                 for (int vertical = 0; vertical < mapHeight; vertical++) {
-
+                    Logger.initProgressBar(0,mapWidth);
                     //grab the next current line (and increment the count)
                     if(lineNumber > maxLine){
                         Logger.log(1,"END OF FILE REACHED, MISSING MAP DATA");
@@ -253,7 +253,10 @@ public class FileHandler {
 
                         //if tile value and position is valid, we create and store the tile object
                         outputMap.layout[vertical][horizontal] = new Tile(outputMap.tileTypes[tileValue], x, y);
+                        Logger.tick(0);
                     }
+
+                    Logger.log(0, "\tfinished line " + vertical);
                 }
 
                 Logger.log(0,"map loaded");

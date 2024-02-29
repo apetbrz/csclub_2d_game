@@ -29,12 +29,8 @@ public class Logger {
     public static void log(int category, String message, boolean exit){
         if(category < MINIMUM_IMPORTANCE) return;
 
-        switch (category) {
-            case 0 -> output(INFO_COLOR + message + RESET_COLOR);
-            case 1 -> output(WARNING_COLOR + message + RESET_COLOR);
-            case 2 -> output(FATAL_COLOR + message + RESET_COLOR);
-            default -> output(FATAL_COLOR + "CAT. " + category + " LOG: " + message + RESET_COLOR);
-        }
+        output(colorize(category,message));
+
         if(exit){
             output(FATAL_COLOR + FATAL_MESSAGE + RESET_COLOR);
             System.exit(-1);
@@ -54,8 +50,32 @@ public class Logger {
         log(category, exception.getMessage(), exit);
     }
 
+    public static void initProgressBar(int category, int ticks){
+        if(category < MINIMUM_IMPORTANCE) return;
+
+        String message = "loading " + ticks + " items: ";
+
+        outputIncremental(colorize(category,message));
+    }
+    public static void tick(int category){
+        if(category < MINIMUM_IMPORTANCE) return;
+        outputIncremental(colorize(category,"*"));
+    }
+
+    private static String colorize(int category, String message){
+        return switch (category) {
+            case 0 -> (INFO_COLOR + message + RESET_COLOR);
+            case 1 -> (WARNING_COLOR + message + RESET_COLOR);
+            case 2 -> (FATAL_COLOR + message + RESET_COLOR);
+            default -> (FATAL_COLOR + "CAT. " + category + " LOG: " + message + RESET_COLOR);
+        };
+    }
+
     private static void output(Object obj){
         //TODO: Log to a file
         System.out.println(obj);
+    }
+    private static void outputIncremental(Object obj){
+        System.out.print(obj);
     }
 }

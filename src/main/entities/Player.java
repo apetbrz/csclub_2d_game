@@ -69,8 +69,8 @@ public class Player extends Entity{
                     targetY /= Main.RENDER_SCALE;
 
                     //center it on the player
-                    targetX = valueToCenterOfEntity(targetX);
-                    targetY = valueToCenterOfEntity(targetY);
+                    targetX = topLeftEdgeToCenter(targetX);
+                    targetY = topLeftEdgeToCenter(targetY);
 
                     //after all those calculations, set that point to the Entity's target coordinate
                     this.moveTargetPoint(targetX, targetY);
@@ -95,7 +95,7 @@ public class Player extends Entity{
                 if (controller.right) moveX += moveSpeed;
 
                 //after getting the values, move that way.
-                this.moveRelativeToPosition(moveX, moveY);
+                this.moveRelative(moveX, moveY);
 
                 break;  //END case KEYBOARD
 
