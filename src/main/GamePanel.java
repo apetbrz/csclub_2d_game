@@ -34,6 +34,10 @@ public class GamePanel extends JPanel {
     //HITBOX_STROKE: the outline used for rendering hitboxes, thru Main.DEBUG_SHOW_HITBOXES
     private static final BasicStroke HITBOX_STROKE = new BasicStroke(RENDER_SCALE);
 
+    //DEFAULT_IMAGE_SCALING_MODE: the scale algorithm to use when scaling images
+    //i.e. when scaling entity sprites to their size value
+    public static final int DEFAULT_IMAGE_SCALING_MODE = Image.SCALE_REPLICATE;
+
     //displayFPS: the current FPS value to display on the screen
     public double displayFPS;
 
@@ -210,7 +214,7 @@ public class GamePanel extends JPanel {
 
             //draw hitboxes if desired
             if(Main.DEBUG_SHOW_HITBOXES) {
-                g2D.setColor(Color.GREEN);
+                g2D.setColor(ent.hasCollision ? Color.GREEN : Color.RED);
                 g2D.fillOval((int) ((x - cameraX / RENDER_SCALE) * RENDER_SCALE), (int) ((y - cameraY / RENDER_SCALE) * RENDER_SCALE),2*RENDER_SCALE,2*RENDER_SCALE);
 
                 Rectangle2D box = ent.collider;
@@ -224,8 +228,14 @@ public class GamePanel extends JPanel {
 
     //drawUI(): draw game information, currently only FPS display
     private void drawUI(Graphics2D g2D) {
+        //set color and font
         g2D.setColor(Color.WHITE);
         g2D.setFont(g2D.getFont().deriveFont(Font.PLAIN, (float) (g2D.getFont().getSize()/2.0 * RENDER_SCALE)));
+
+        //draw the fps display
+        //to cut it off at 2 decimal places, i multiply by 100, cast to int,
+        //cast back to double, then divide by 100
+        //i.e. 12.34567 -> 1234.567 -> 1234 -> 1234.0 -> 12.34
         g2D.drawString("fps:"+(double)((int)(displayFPS * 100))/100.0, 10, 12*RENDER_SCALE);
 
         //draw coordinates on-screen if desired (

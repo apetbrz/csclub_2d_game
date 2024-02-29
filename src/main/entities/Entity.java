@@ -107,7 +107,7 @@ public class Entity {
     //automatically scales the image to be the entity's size
     //images won't look as good if they scale weird, so try to keep image size equal to entity size
     protected void setImage(String fileName) {
-        image = FileHandler.loadImage(fileName).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
+        image = FileHandler.loadImage(fileName).getScaledInstance(size,size, GamePanel.DEFAULT_IMAGE_SCALING_MODE);
     }
 
     //setImagesWithDirectionality(): same as above, but
@@ -115,10 +115,10 @@ public class Entity {
     protected void setImagesWithDirectionality(String fileName){
         hasDirectionality = true;
 
-        upImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_UP_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
-        leftImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_LEFT_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
-        downImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_DOWN_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
-        rightImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_RIGHT_SUFFIX).getScaledInstance(size,size, Main.DEFAULT_IMAGE_SCALING_MODE);
+        upImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_UP_SUFFIX).getScaledInstance(size,size, GamePanel.DEFAULT_IMAGE_SCALING_MODE);
+        leftImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_LEFT_SUFFIX).getScaledInstance(size,size, GamePanel.DEFAULT_IMAGE_SCALING_MODE);
+        downImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_DOWN_SUFFIX).getScaledInstance(size,size, GamePanel.DEFAULT_IMAGE_SCALING_MODE);
+        rightImage = FileHandler.loadImage(fileName + FileHandler.DIRECTION_RIGHT_SUFFIX).getScaledInstance(size,size, GamePanel.DEFAULT_IMAGE_SCALING_MODE);
 
         image = downImage;
     }
@@ -256,20 +256,19 @@ public class Entity {
             //(if moving diagonal, entity will face left/right)
             //TODO: keep first direction traveled from standstill (how? we'll see)
 
-            //check if standing still
-            if(deltaX == 0 && deltaY == 0){
-                //do nothing, this keeps the same image when you stop moving
-            }
-            //otherwise, compare the magnitudes of the two axes
-            //if deltaX is smaller than deltaY
-            else if(Math.abs(deltaX) < Math.abs(deltaY)){
-                //set the image based on the vertical direction
-                image = deltaY < 0 ? upImage : downImage;
-            }
-            //otherwise, if deltaX is larger than deltaY
-            else{
-                //set the image based on the horizontal direction
-                image = deltaX < 0 ? leftImage : rightImage;
+            //check if we are moving (aka not standing still)
+            if (deltaX != 0 || deltaY != 0) {
+                //if so:
+                //if deltaX is smaller than deltaY
+                if(Math.abs(deltaX) < Math.abs(deltaY)){
+                    //set the image based on the vertical direction
+                    image = deltaY < 0 ? upImage : downImage;
+                }
+                //otherwise, if deltaX is larger than deltaY
+                else{
+                    //set the image based on the horizontal direction
+                    image = deltaX < 0 ? leftImage : rightImage;
+                }
             }
         }
     }
