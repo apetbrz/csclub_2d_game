@@ -23,9 +23,11 @@ Files:
 - RNG: used wherever random numbers are wanted, has specific tools
 
 Folders:
+- main/: where all the code is located.
 - maps/: where map files are located.
-- textures/: where textuer files are located.
+- textures/: where texture files are located.
 - entities/: where entity types are located.
 
 Notable locations:
 - map selection: Main.MAP_SELECTION
+- example map (with comments): maps/default.txt
