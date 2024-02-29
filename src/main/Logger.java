@@ -50,6 +50,7 @@ public class Logger {
         log(category, exception.getMessage(), exit);
     }
 
+    //progress bar: may be difficult to read
     public static void initProgressBar(int category, int ticks){
         if(category < MINIMUM_IMPORTANCE) return;
 
@@ -57,11 +58,17 @@ public class Logger {
 
         outputIncremental(colorize(category,message));
     }
+    //tick: progress bar tick. aka a *
     public static void tick(int category){
         if(category < MINIMUM_IMPORTANCE) return;
         outputIncremental(colorize(category,"*"));
     }
 
+    //colorize: takes a category and message, and returns that message with the appropriate color
+    //LOG CATEGORY VALUES:
+    //0: info log
+    //1: warning log, look into this!
+    //2: fatal log! fix this!
     private static String colorize(int category, String message){
         return switch (category) {
             case 0 -> (INFO_COLOR + message + RESET_COLOR);
@@ -71,8 +78,10 @@ public class Logger {
         };
     }
 
+    //output: actually outputs the message to the appropriate place
+    //outputIncremental: only omits the newline (for loading bars and such)
+    //TODO: Log to a file
     private static void output(Object obj){
-        //TODO: Log to a file
         System.out.println(obj);
     }
     private static void outputIncremental(Object obj){
