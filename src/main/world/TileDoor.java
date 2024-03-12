@@ -6,12 +6,12 @@ import main.entities.Player;
 
 import java.awt.image.BufferedImage;
 
-public class TileObject extends Tile {
+public class TileDoor extends Tile {
 
     private final int keysNeededToActivate;
-    private BufferedImage imageAlt;
+    private final BufferedImage imageAlt;
 
-    public TileObject(TileType tileType, int x, int y) {
+    public TileDoor(TileType tileType, int x, int y) {
         super(tileType, x, y);
         keysNeededToActivate = tileType.keysNeededToActivate;
         imageAlt = FileHandler.loadImage(this.type.fileNameAlt);

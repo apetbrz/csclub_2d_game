@@ -6,7 +6,7 @@ import main.entities.Key;
 import main.entities.Snail;
 import main.world.Map;
 import main.world.Tile;
-import main.world.TileObject;
+import main.world.TileDoor;
 import main.world.TileType;
 
 import javax.imageio.ImageIO;
@@ -281,7 +281,7 @@ public class FileHandler {
                         //if tile value and position is valid, we create and store the tile object
                         Tile newTile;
                         if(outputMap.tileTypes[tileValue].isInteractable){
-                            newTile = new TileObject(outputMap.tileTypes[tileValue], x,y);
+                            newTile = new TileDoor(outputMap.tileTypes[tileValue], x,y);
                         }
                         else{
                             newTile = new Tile(outputMap.tileTypes[tileValue], x, y);

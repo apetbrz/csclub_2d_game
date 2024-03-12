@@ -1,7 +1,7 @@
 package main.entities;
 import main.*;
 import main.world.Tile;
-import main.world.TileObject;
+import main.world.TileDoor;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -234,7 +234,7 @@ public class Entity {
 
             if(this.collider.intersects(t.collider)) {
 
-                if(t.isInteractable()) ((TileObject)t).collide(this);
+                if(t.isInteractable()) ((TileDoor)t).collide(this);
 
                 int collisionDirection = t.collider.outcode(this.collider.getCenterX(),this.collider.getCenterY());
 
@@ -257,7 +257,7 @@ public class Entity {
 
             if(this.collider.intersects(t.collider)) {
 
-                if(t.isInteractable()) ((TileObject)t).collide(this);
+                if(t.isInteractable()) ((TileDoor)t).collide(this);
 
                 int collisionDirection = t.collider.outcode(this.collider.getCenterX(),this.collider.getCenterY());
 

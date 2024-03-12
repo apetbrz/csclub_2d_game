@@ -1,8 +1,6 @@
 package main.entities;
 
 import main.*;
-import main.world.Tile;
-import main.world.TileObject;
 
 public class Player extends Entity{
 
