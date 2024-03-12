@@ -98,12 +98,11 @@ public class Game implements Runnable {
             //update the game
             state.update();
 
+            //save game update end time, CURRENTLY UNUSED
+            gameUpdateTimeNano = System.nanoTime();
+
             //update the screen
             panel.update();
-
-            //save game update end time, CURRENTLY UNUSED
-            //TODO: compare active rendering time to fixed FPS time
-            gameUpdateTimeNano = System.nanoTime();
 
             //save screen update end time
             frameEndTimeNano = System.nanoTime();
