@@ -205,24 +205,14 @@ public class Entity {
         }
     }
 
-    protected void moveHorizontal(float moveX){
-        this.x += moveX;
-        moveCollider(moveX, 0);
-    }
-    protected void moveVertical(float moveY){
-        this.y += moveY;
-        moveCollider(0, moveY);
-    }
-
+    //move(): move the entity (and its collider) relative to itself
     protected void move(float moveX, float moveY){
         this.x += moveX;
         this.y += moveY;
-        moveCollider(moveX,moveY);
-    }
-    protected void moveCollider(float moveX, float moveY){
         collider.setRect(collider.getX() + moveX, collider.getY() + moveY, collider.getWidth(), collider.getHeight());
     }
 
+    //moveWithTerrainCollision(): relative movement, with terrain blocking
     protected void moveWithTerrainCollision(float moveX, float moveY){
         //TODO: MAKE THIS WORK:
         //SHOULD:
@@ -236,6 +226,7 @@ public class Entity {
         moveVerticalWithCollision(moveY, tilesAround);
     }
 
+    //moveHorizontal/VerticalWithCollision(): used in above, for separate axes of movement
     protected void moveHorizontalWithCollision(float moveX, Tile[] horizontalTiles){
         move(moveX, 0);
         for(Tile t : horizontalTiles){
@@ -328,7 +319,6 @@ public class Entity {
 
     //collide(): returns a boolean value of whether the entity collides with the target
     //can be overriden to add extra functionality to entity types
-    //TODO: DISTANCE CHECK BEFORE COLLISION CHECK
     public boolean collide(Entity target){
         return this.collider.intersects(target.collider);
     }
