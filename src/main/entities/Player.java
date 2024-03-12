@@ -1,6 +1,8 @@
 package main.entities;
 
 import main.*;
+import main.world.Tile;
+import main.world.TileObject;
 
 public class Player extends Entity{
 
@@ -16,9 +18,13 @@ public class Player extends Entity{
     private static final int DEFAULT_LEFT_MARGIN = 2;
     private static final int DEFAULT_BOTTOM_MARGIN = 1;
     private static final int DEFAULT_RIGHT_MARGIN = 2;
+
+    //TODO: Inventory FOR ALL ENTITIES?
+    //TODO: GAMEPLAY DESIGN
+    private int keys = 0;
     
     //DEFAULT CONSTRUCTOR OVERRIDE
-    //no other constructor, we want the player to always be the same
+    //no other constructor, we want the player to always be the same (unless future multiplayer support)
     public Player() {
         super();
 
@@ -42,6 +48,22 @@ public class Player extends Entity{
     public void update(){
         handleControls(state.controller);
         super.update();
+        checkCollisions();
+    }
+
+    private void checkCollisions() {
+        for(Entity e : state.getEntities()){
+            if(e == null) continue;
+            e.collide(this);
+        }
+        /*
+        for(Tile t : state.tilesAround(this.x, this.y)){
+            if(t == null) continue;
+            if(t.isInteractable()){
+                ((TileObject)t).collide(this);
+            }
+        }
+        */
     }
 
     //handleControls(): looks at the ControlHandler object and acts accordingly.
@@ -107,4 +129,24 @@ public class Player extends Entity{
         return true;
     }
 
+    public int getKeys() {
+        return keys;
+    }
+    public void addKey(){
+        keys++;
+    }
+    public boolean useKey(){
+        if(getKeys() < 1) return false;
+        else{
+            keys--;
+            return true;
+        }
+    }
+    public boolean useKey(int count){
+        if(getKeys() < count) return false;
+        else{
+            keys -= count;
+            return true;
+        }
+    }
 }

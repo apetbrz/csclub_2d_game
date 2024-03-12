@@ -36,10 +36,13 @@ public class GamePanel extends JPanel {
 
     //DEFAULT_IMAGE_SCALING_MODE: the scale algorithm to use when scaling images
     //i.e. when scaling entity sprites to their size value
-    public static final int DEFAULT_IMAGE_SCALING_MODE = Image.SCALE_REPLICATE;
+    public static final int DEFAULT_IMAGE_SCALING_MODE = Image.SCALE_DEFAULT;
 
     //displayFPS: the current FPS value to display on the screen
     public double displayFPS;
+
+    //displayRenderPercentage: the % of time spent rendering/processing actively (of the full frame)
+    public double displayRenderPercentage;
 
     //fps: an array that stores 15 frames of fps values, for averaging
     //not very necessary at this moment, tbh
@@ -173,10 +176,7 @@ public class GamePanel extends JPanel {
                         g2D.setColor(map[i][j].hasCollision ? Color.RED : Color.GREEN);
                         g2D.setStroke(HITBOX_STROKE);
                         Rectangle2D box = map[i][j].collider;
-                        int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
-                        int boxY = (int)(box.getY() - cameraY / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
-                        int boxSize = (int)(box.getWidth()) * RENDER_SCALE - (RENDER_SCALE);
-                        g2D.drawRect(boxX, boxY, boxSize, boxSize);
+                        drawHitboxInScreenspace(g2D, box);
                     }catch(ArrayIndexOutOfBoundsException e){
                         //do nothing
                     }
@@ -218,12 +218,16 @@ public class GamePanel extends JPanel {
                 g2D.fillOval(((x - cameraX / RENDER_SCALE) * RENDER_SCALE), ((y - cameraY / RENDER_SCALE) * RENDER_SCALE),2*RENDER_SCALE,2*RENDER_SCALE);
 
                 Rectangle2D box = ent.collider;
-                int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
-                int boxY = (int)(box.getY() - cameraY / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
-                int boxSize = (int)(box.getWidth()) * RENDER_SCALE - (RENDER_SCALE);
-                g2D.drawRect(boxX, boxY, boxSize, boxSize);
+                drawHitboxInScreenspace(g2D, box);
             }
         }
+    }
+
+    private void drawHitboxInScreenspace(Graphics2D g2D, Rectangle2D box) {
+        int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE;
+        int boxY = (int)(box.getY() - cameraY / RENDER_SCALE) * RENDER_SCALE;
+        int boxSize = (int)(box.getWidth()) * RENDER_SCALE;
+        g2D.drawRect(boxX, boxY, boxSize, boxSize);
     }
 
     //drawUI(): draw game information, currently only FPS display
@@ -236,7 +240,8 @@ public class GamePanel extends JPanel {
         //to cut it off at 2 decimal places, i multiply by 100, cast to int,
         //cast back to double, then divide by 100
         //i.e. 12.34567 -> 1234.567 -> 1234 -> 1234.0 -> 12.34
-        g2D.drawString("fps:"+(double)((int)(displayFPS * 100))/100.0, 10, 12*RENDER_SCALE);
+        g2D.drawString("fps:"+(double)((int)(displayFPS * 100))/100.0, 10*RENDER_SCALE, 20);
+        g2D.drawString("render%:"+(double)((int)(displayRenderPercentage * 100))/100.0, 10*RENDER_SCALE, 40);
 
         //draw coordinates on-screen if desired (
         if(Main.DEBUG_SHOW_COORDINATES) {
@@ -244,6 +249,7 @@ public class GamePanel extends JPanel {
             g2D.drawString("player: " + p.x + "," + p.y, 64 * RENDER_SCALE, 20);
             g2D.drawString("collider: " + p.collider.getX() + "," + p.collider.getY(), 64 * RENDER_SCALE, 40);
             g2D.drawString("camera: " + cameraX + "," + cameraY, 64 * RENDER_SCALE, 60);
+            g2D.drawString("player keys: " + p.getKeys(), 64 * RENDER_SCALE, 80);
         }
     }
 
@@ -260,6 +266,9 @@ public class GamePanel extends JPanel {
             displayFPS += d;
         }
         displayFPS = displayFPS / fps.length;
+    }
+    public void updateFramePercentage(double frameRenderPercentage){
+        this.displayRenderPercentage = frameRenderPercentage;
     }
 
     //handleCameraMovement(): moves camera around, based on controller

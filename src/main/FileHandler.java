@@ -2,9 +2,11 @@ package main;
 
 import main.entities.Critter;
 import main.entities.Entity;
+import main.entities.Key;
 import main.entities.Snail;
 import main.world.Map;
 import main.world.Tile;
+import main.world.TileObject;
 import main.world.TileType;
 
 import javax.imageio.ImageIO;
@@ -161,8 +163,11 @@ public class FileHandler {
 
                 Logger.log(0,"loading tile data");
 
-                //grab the number of tiles (integer after the colon)
-                int numberOfTiles = Integer.parseInt(line.substring(line.indexOf(":") + 1).trim());
+                //grab the number of tiles (check lines until we see a blank line)
+                int numberOfTiles = 0;
+                while(!lines[lineNumber + numberOfTiles].isBlank()){
+                    numberOfTiles++;
+                }
 
                 //create a new array in the map object, to hold the tile types
                 outputMap.tileTypes = new TileType[numberOfTiles];
@@ -185,16 +190,38 @@ public class FileHandler {
                     //split the line up using the dashes
                     String[] tileData = line.split("-");
 
+                    int tileIndex;
+                    String tileName;
+                    String tileNameAlt;
+                    boolean tileHasCollision;
+                    int tileKeysToOpen;
+
                     //grab the tile information from the split line
-                    int tileIndex = Integer.parseInt(tileData[0].trim());
-                    String tileName = tileData[1].trim();
-                    boolean tileHasCollision = Boolean.parseBoolean(tileData[2].trim());
+                    if(tileData.length == 3) {
+                        tileIndex = Integer.parseInt(tileData[0].trim());
+                        tileName = tileData[1].trim();
+                        tileHasCollision = Boolean.parseBoolean(tileData[2].trim());
 
-                    //create the object
-                    TileType tileToLoad = new TileType(tileName, tileHasCollision);
+                        //create the object
+                        TileType tileToLoad = new TileType(tileName, tileHasCollision);
 
-                    //store it
-                    outputMap.tileTypes[tileIndex] = tileToLoad;
+                        //store it
+                        outputMap.tileTypes[tileIndex] = tileToLoad;
+                    }
+                    else if(tileData.length == 4){
+                        tileIndex = Integer.parseInt(tileData[0].trim());
+                        tileName = tileData[1].trim();
+                        tileNameAlt = tileData[2].trim();
+                        tileKeysToOpen = Integer.parseInt(tileData[3].trim());
+
+                        //create the object
+                        TileType tileToLoad = new TileType(tileName, tileNameAlt, tileKeysToOpen);
+
+                        //store it
+                        outputMap.tileTypes[tileIndex] = tileToLoad;
+                    }
+
+
                 }
 
                 Logger.log(0,"tiles loaded");
@@ -252,7 +279,14 @@ public class FileHandler {
                         int y = vertical * Main.TILE_SIZE;
 
                         //if tile value and position is valid, we create and store the tile object
-                        outputMap.layout[vertical][horizontal] = new Tile(outputMap.tileTypes[tileValue], x, y);
+                        Tile newTile;
+                        if(outputMap.tileTypes[tileValue].isInteractable){
+                            newTile = new TileObject(outputMap.tileTypes[tileValue], x,y);
+                        }
+                        else{
+                            newTile = new Tile(outputMap.tileTypes[tileValue], x, y);
+                        }
+                        outputMap.layout[vertical][horizontal] = newTile;
                         Logger.tick(0);
                     }
 
@@ -289,7 +323,10 @@ public class FileHandler {
                 Logger.log(0, "loading entities");
 
                 //grab how many entities we expect to see
-                int entityCount = Integer.parseInt(line.substring(line.indexOf(':') + 1).trim());
+                int entityCount = 0;
+                while(!lines[lineNumber + entityCount].isBlank()){
+                    entityCount++;
+                }
 
                 //initialize the array
                 outputMap.initialEntities = new Entity[entityCount];
@@ -307,27 +344,44 @@ public class FileHandler {
                     String[] entityInfo = line.split("-");
 
                     //grab the relevant values and store them in convenient variables
-                    String entityName = entityInfo[0].trim();
-                    String entityType = entityInfo[1].trim();
-                    int entitySize = Integer.parseInt(entityInfo[2].trim());
-                    float entityMovespeed = Float.parseFloat(entityInfo[3].trim());
-                    String[] entitySpawnInfo = entityInfo[4].split(",");
-                    int entitySpawnX = Integer.parseInt(entitySpawnInfo[0].trim());
-                    int entitySpawnY = Integer.parseInt(entitySpawnInfo[1].trim());
-
+                    String entityName = null;
+                    String entityType = null;
+                    int entitySize = -1;
+                    float entityMovespeed = -1;
+                    String[] entitySpawnInfo;
+                    int entitySpawnX;
+                    int entitySpawnY;
                     //for the boolean, we assume false, unless there *is* something there
                     boolean entityDirectional = false;
-                    //check if theres a 6th data value
-                    if(entityInfo.length == 6){
-                        //if so, grab it (can be true/false, but false is kinda redundant lol
-                        entityDirectional = Boolean.parseBoolean(entityInfo[5].trim());
+
+                    switch(entityInfo.length){
+                        case 2:
+                            entityType = entityInfo[0].trim();
+                            entitySpawnInfo = entityInfo[1].split(",");
+                            break;
+                        case 6:
+                            entityDirectional = Boolean.parseBoolean(entityInfo[5].trim());
+                        case 5:
+                            entityName = entityInfo[0].trim();
+                            entityType = entityInfo[1].trim();
+                            entitySize = Integer.parseInt(entityInfo[2].trim());
+                            entityMovespeed = Float.parseFloat(entityInfo[3].trim());
+                            entitySpawnInfo = entityInfo[4].split(",");
+                            break;
+                        default:
+                            Logger.log(2,"INVALID ENTITY AT LINE " + line + ", SKIPPING");
+                            continue;
                     }
+
+                    entitySpawnX = Integer.parseInt(entitySpawnInfo[0].trim());
+                    entitySpawnY = Integer.parseInt(entitySpawnInfo[1].trim());
 
                     //check what entity type it is, and create that entity
                     //TODO: MOVE ENTITY TYPING OUT OF FileHandler!!!! SHOULD BE SOMEWHERE EASIER TO MODIFY
                     switch (entityType) {
                         case "critter" -> outputMap.initialEntities[i] = new Critter(entityName, entitySize, entityMovespeed, entityDirectional);
                         case "snail" -> outputMap.initialEntities[i] = new Snail(entityName, entitySize, entityMovespeed, entityDirectional);
+                        case "key" -> outputMap.initialEntities[i] = new Key();
                     }
 
                     //finally, move the entity to its spawn point

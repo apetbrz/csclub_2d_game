@@ -1,6 +1,7 @@
 package main.entities;
 import main.*;
 import main.world.Tile;
+import main.world.TileObject;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -24,6 +25,9 @@ public class Entity {
 
     //hasDirectionality: states whether the entity rotates/changes image as it changes direction
     public boolean hasDirectionality;
+
+    //isAlive: true if alive, false if dead.
+    public boolean isAlive = true;
 
     //x, y: 2D coordinate location
     public float x, y;
@@ -162,90 +166,18 @@ public class Entity {
                 //only really used for mouse movement!
                 //prevents glitchy rapid back-and-forth,
                 //when at the target location but each step overshoots
-                if(canMoveHorizontal(deltaX)) x = targetX;
-                if(canMoveVertical(deltaY)) y = targetY;
+                moveWithTerrainCollision(deltaX,deltaY);
             } else {
                 //otherwise, move towards target
+
+                //TODO: THIS MOVEMENT CODE SUCKS. HORRIBLY. PLEASE RE-DO
+                //TODO: FIX COLLIDER DRIFT
 
                 //moveX, moveY: x/y values normalized (to prevent diagonal movement being ~1.4x the speed)
                 float moveX = (deltaX / vectorMagnitude) * moveSpeed;
                 float moveY = (deltaY / vectorMagnitude) * moveSpeed;
 
-                //now, if i just checked for collision and moved, and nothing else,
-                //id run into an issue where there would be a gap between the player and walls,
-                //if the gap was less than one moveX or moveY away.
-                //to fix this, i do this:
-
-                //as long as we haven't moved the full distance given by moveX/moveY,
-                //keep checking if we can move *some distance* (remainingDistance), starting at moveX/moveY
-                //if we cant (but still have distance to move this frame),
-                //divide that "some distance" by two
-
-                //effectively, this is like infinitely adding fractional distances,
-                //until we reach the limit of floating point accuracy
-                //at which point, we are pixel-perfect against the wall blocking us!
-
-                //X COMPONENT
-                //distanceTraveled: keeps track of how far we've moved
-                float distanceTraveled = 0;
-                //remainingDistance: keeps track of how far we still could maybe move
-                float remainingDistance = moveX;
-
-                //so long as we could still potentially move a distance,
-                while(remainingDistance != 0){
-
-                    //check if we can move the potential distance
-                    if(canMoveHorizontal(remainingDistance)){
-
-                        //if so, move the distance
-                        x += remainingDistance;
-
-                        //update collider to new position
-                        collider.setRect(collider.getX() + remainingDistance, collider.getY(), collider.getWidth(), collider.getHeight());
-
-                        //and add it to the distanceTraveled
-                        distanceTraveled += remainingDistance;
-                    }
-
-                    //check to make sure that we haven't traveled too far/are done traveling
-                    if(Math.abs(distanceTraveled) > Math.abs(moveX)){
-                        //if so, exit the loop
-                        break;
-                    }
-
-                    //otherwise, divide the potential distance by 2
-                    remainingDistance = remainingDistance / 2;
-                }
-
-                //Y COMPONENT
-                //distanceTraveled: keeps track of how far we've moved
-                distanceTraveled = 0;
-                //remainingDistance: keeps track of how far we still could maybe move
-                remainingDistance = moveY;
-                while(remainingDistance != 0){
-
-                    //check if we can move the potential distance
-                    if(canMoveVertical(remainingDistance)){
-
-                        //if so, move the distance
-                        y += remainingDistance;
-
-                        //update collider to new position
-                        collider.setRect(collider.getX(), collider.getY() + remainingDistance, collider.getWidth(), collider.getHeight());
-
-                        //and add it to the distanceTraveled
-                        distanceTraveled += remainingDistance;
-                    }
-
-                    //check to make sure that we haven't traveled too far/are done traveling
-                    if(Math.abs(distanceTraveled) > Math.abs(moveY)){
-                        //if so, exit the loop
-                        break;
-                    }
-
-                    //otherwise, divide the potential distance by 2
-                    remainingDistance = remainingDistance / 2;
-                }
+                moveWithTerrainCollision(moveX,moveY);
             }
         }
 
@@ -273,85 +205,82 @@ public class Entity {
         }
     }
 
-    //canMoveHorizontal: checks for collision and returns if we can move or not
-    //parameter moveX: the X component of movement to check for
-    protected boolean canMoveHorizontal(float moveX) {
-        //if we have no collision, we can always move!
-        if(!hasCollision) return true;
-
-        //need to check two tiles, one for each "shoulder" of the player.
-        Tile t1;
-        Tile t2;
-
-        float x = (float) this.collider.getX();
-        float y1 = (float) this.collider.getY();
-        float y2 = y1 + (float) this.collider.getHeight() - 1 - 1;
-        //FOR SOME REASON, there is always a 1-pixel gap
-        //on the bottom/right edges
-        //only fixed by subtracting one!!! idk why.
-        //i had to subtract ANOTHER ONE!!!! bc otherwise movement
-        //wouldnt work, if against a wall on the bottom/right side of the player
-        //???
-
-        //if moveX < 0, we are moving left
-        //if we are moving right, we check from the right edge
-        //(this.x is the left edge)
-        if (!(moveX < 0)) {
-            //FOR SOME REASON, there is always a 1-pixel gap
-            //on the bottom/right edges
-            //only fixed by subtracting one!!! idk why.
-            x = x + (float) this.collider.getWidth() - 1;
-
-        }
-
-        //grab the two tiles to check, one for each "shoulder"
-        t1 = state.tileAt(x + moveX, y1);
-        t2 = state.tileAt(x + moveX, y2);
-
-        //we can move so long as neither "shoulder" is colliding with a tile
-        //if the tiles are null, we treat them as having solid collision
-        if(t1 == null || t2 == null) return false;
-        boolean collide = t1.hasCollision || t2.hasCollision;
-        return !collide;
+    protected void moveHorizontal(float moveX){
+        this.x += moveX;
+        moveCollider(moveX, 0);
+    }
+    protected void moveVertical(float moveY){
+        this.y += moveY;
+        moveCollider(0, moveY);
     }
 
-    //canMoveVertical: checks for collision and returns if we can move or not
-    //parameter moveY: the Y component of movement to check for
-    protected boolean canMoveVertical(float moveY) {
-        //if we have no collision, we can always move!
-        if(!hasCollision) return true;
+    protected void move(float moveX, float moveY){
+        this.x += moveX;
+        this.y += moveY;
+        moveCollider(moveX,moveY);
+    }
+    protected void moveCollider(float moveX, float moveY){
+        collider.setRect(collider.getX() + moveX, collider.getY() + moveY, collider.getWidth(), collider.getHeight());
+    }
 
-        //need to check two tiles, one for each "shoulder" of the player.
-        Tile t1;
-        Tile t2;
+    protected void moveWithTerrainCollision(float moveX, float moveY){
+        //TODO: MAKE THIS WORK:
+        //SHOULD:
+        //1) check collision
+        //2) if found, calculate overlap distance
+        //3) then move that distance backwards
 
-        float y = (float) this.collider.getY();
-        float x1 = (float) this.collider.getX();
-        float x2 = x1 + (float) this.collider.getWidth() - 1 - 1;
-        //FOR SOME REASON, there is always a 1-pixel gap
-        //on the bottom/right edges
-        //only fixed by subtracting one!!! idk why.
-        //i had to subtract ANOTHER ONE!!!! bc otherwise movement
-        //wouldnt work, if against a wall on the bottom/right side of the player
-        //???
+        Tile[] tilesAround = state.tilesAround(this.x,this.y);
 
-        //if moveY < 0, we are moving up
-        //if we are moving down, we check from the bottom edge
-        //(this.y is the top edge)
-        if (!(moveY < 0)) {
-            //FOR SOME REASON, there is always a 1-pixel gap
-            //on the bottom/right edges
-            //only fixed by subtracting one!!! idk why.
-            y = y + (float) this.collider.getHeight() - 1;
+        moveHorizontalWithCollision(moveX, tilesAround);
+        moveVerticalWithCollision(moveY, tilesAround);
+    }
+
+    protected void moveHorizontalWithCollision(float moveX, Tile[] horizontalTiles){
+        move(moveX, 0);
+        for(Tile t : horizontalTiles){
+            if(t == null || !t.hasCollision) continue;
+
+            if(this.collider.intersects(t.collider)) {
+
+                if(t.isInteractable()) ((TileObject)t).collide(this);
+
+                int collisionDirection = t.collider.outcode(this.collider.getCenterX(),this.collider.getCenterY());
+
+                float tx1 = (float) t.collider.getX();
+                float tx2 = tx1 + (float) t.collider.getWidth();
+
+                float ex1 = (float) this.collider.getX();
+                float ex2 = ex1 + (float) this.collider.getWidth();
+
+                if (moveX != 0 && (collisionDirection & Rectangle2D.OUT_RIGHT) != 0) this.move(tx2 - ex1, 0);
+                if (moveX != 0 && (collisionDirection & Rectangle2D.OUT_LEFT) != 0) this.move(0 - (ex2 - tx1), 0);
+
+            }
         }
-        t1 = state.tileAt(x1, y + moveY);
-        t2 = state.tileAt(x2, y + moveY);
+    }
+    protected void moveVerticalWithCollision(float moveY, Tile[] verticalTiles){
+        move(0, moveY);
+        for(Tile t : verticalTiles){
+            if(t == null || !t.hasCollision) continue;
 
-        //we can move so long as neither "shoulder" is colliding with a tile
-        //if the tiles are null, we treat them as having solid collision
-        if(t1 == null || t2 == null) return false;
-        boolean collide = t1.hasCollision || t2.hasCollision;
-        return !collide;
+            if(this.collider.intersects(t.collider)) {
+
+                if(t.isInteractable()) ((TileObject)t).collide(this);
+
+                int collisionDirection = t.collider.outcode(this.collider.getCenterX(),this.collider.getCenterY());
+
+                float ty1 = (float) t.collider.getY();
+                float ty2 = ty1 + (float) t.collider.getHeight();
+
+                float ey1 = (float) this.collider.getY();
+                float ey2 = ey1 + (float) this.collider.getHeight();
+
+                if (moveY != 0 && (collisionDirection & Rectangle2D.OUT_BOTTOM) != 0) this.move(0, ty2 - ey1);
+                if (moveY != 0 && (collisionDirection & Rectangle2D.OUT_TOP) != 0) this.move(0, 0 - (ey2 - ty1));
+
+            }
+        }
     }
 
     //setLocation: moves the entity to the specific coordinates in worldspace,
@@ -392,7 +321,20 @@ public class Entity {
         return false;
     }
 
+    //getCenter(): returns the [x,y] coordinate for the center of the entity
     protected float[] getCenter() {
         return new float[]{this.topLeftEdgeToCenter(this.x), this.topLeftEdgeToCenter(this.y)};
+    }
+
+    //collide(): returns a boolean value of whether the entity collides with the target
+    //can be overriden to add extra functionality to entity types
+    //TODO: DISTANCE CHECK BEFORE COLLISION CHECK
+    public boolean collide(Entity target){
+        return this.collider.intersects(target.collider);
+    }
+
+    //die(): die
+    public void die(){
+        this.isAlive = false;
     }
 }

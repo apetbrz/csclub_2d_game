@@ -1,7 +1,9 @@
 package main.entities;
 
+import main.Logger;
 import main.Main;
 import main.RNG;
+import main.world.Tile;
 
 public class Critter extends Entity{
 
@@ -21,6 +23,8 @@ public class Critter extends Entity{
     //walkDistanceMax: the maximum distance in each direction, in each axis (X/Y),
     //that the critter will walk towards randomly.
     private int walkDistanceMax = Main.TILE_SIZE;
+
+    private boolean hasKey = true;
 
     //constructor overrides
     //TODO: better constructors? depends on what i need
@@ -47,8 +51,10 @@ public class Critter extends Entity{
     //(up to walkDistanceMax units away in each of the horizontal/vertical axes)
     //and then start walking there
     private void randomWalk(){
+        Tile t = state.tileAt(this.getCenter());
+
         //if we are inside a tile with collision,
-        if (state.tileAt(this.x, this.y).hasCollision){
+        if (t == null || t.hasCollision){
             //don't random walk. aka just sit there.
         }
         //otherwise, grab a random number from 0-99 and see if its less than walkChance (the chance to walk)
@@ -69,6 +75,32 @@ public class Critter extends Entity{
             //finally, we move the Critter that random distance
             moveRelative(randX,randY);
         }
+    }
+
+    @Override
+    public boolean collide(Entity e){
+        //check for collision
+        boolean collision = super.collide(e);
+
+        //if yes,
+        if(collision){
+            //check if its a player that collided
+            if(e.isPlayer()) {
+                //if so, check if this critter has a key
+                if (hasKey) {
+                    //if so, write a silly little message
+                    Logger.log(1, "the friend gives you a key!");
+                    //and give the key to the player
+                    hasKey = false;
+                    ((Player)e).addKey();
+                }
+            }
+        }
+
+        //no else
+
+        //pass super.collide output
+        return collision;
     }
 
 }

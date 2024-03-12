@@ -15,6 +15,9 @@ public class Tile {
     public int x;
     public int y;
 
+    //w: width
+    public int w;
+
     //image: the texture of the tile
     public BufferedImage image;
 
@@ -38,15 +41,22 @@ public class Tile {
     public Tile(TileType tileType, int x, int y) {
         //store values
         //check if type is null, if it is, use a default TileType, if not, pass it through
-        this.type = tileType == null ? new TileType() : tileType;
+        this.type = (tileType == null ? new TileType() : tileType);
         this.x = x;
         this.y = y;
+        this.w = Main.TILE_SIZE;
 
         //init collider
-        collider = new Rectangle2D.Float(x, y, Main.TILE_SIZE, Main.TILE_SIZE);
+        int colliderBuffer = 0;
+        collider = new Rectangle2D.Float(x-colliderBuffer, y-colliderBuffer, Main.TILE_SIZE+colliderBuffer*2, Main.TILE_SIZE+colliderBuffer*2);
 
         //get tile information based on type
         image = FileHandler.loadImage(this.type.fileName);
         hasCollision = this.type.hasCollision;
+    }
+
+    //similar to Entity::isPlayer
+    public boolean isInteractable(){
+        return false;
     }
 }

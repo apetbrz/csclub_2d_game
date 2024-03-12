@@ -84,6 +84,7 @@ public class Logger {
     private static void output(Object obj){
         System.out.println(obj);
     }
+    //TODO: rename outputIncremental to something that makes more sense
     private static void outputIncremental(Object obj){
         System.out.print(obj);
     }

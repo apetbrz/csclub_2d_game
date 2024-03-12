@@ -8,7 +8,10 @@ public class TileType {
     public static final String DEFAULT_TILE_FILENAME = FileHandler.DEFAULT_TEXTURE;
     public static final boolean DEFAULT_COLLISION = true;
     public String fileName;
+    public String fileNameAlt;
     public boolean hasCollision;
+    public int keysNeededToActivate;
+    public boolean isInteractable = false;
 
     public TileType(){
         fileName = DEFAULT_TILE_FILENAME;
@@ -18,6 +21,15 @@ public class TileType {
     public TileType(String fileName, boolean hasCollision){
         this.fileName = fileName;
         this.hasCollision = hasCollision;
+    }
+
+    public TileType(String fileName, String fileNameAlt, int keysNeededToActivate){
+        this.fileName = fileName;
+        this.fileNameAlt = fileNameAlt;
+        this.hasCollision = true;
+        this.keysNeededToActivate = keysNeededToActivate;
+
+        isInteractable = true;
     }
 
 }

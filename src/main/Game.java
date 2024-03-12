@@ -27,7 +27,7 @@ public class Game implements Runnable {
     //CONSTRUCTOR
     public Game() {
         //create the game state
-        state = new GameState();
+        state = new GameState(this);
 
         //initialize window settings
         window = new JFrame();              //create the object
@@ -84,7 +84,7 @@ public class Game implements Runnable {
         long gameUpdateTimeNano;    //when the game is done updating its logic
         long frameEndTimeNano;      //when the panel is done updating the screen
         long frameTimeNano;         //total time from start->end of game update sequence
-        double totalFrameTimeMilli; //total time from start->end of frame (incl. sleep)
+        double totalFrameTimeNano;  //total time from start->end of frame (incl. sleep)
 
         //millisecondsPerFrame is our target render time, to reach the TARGET_FPS from Main
         double millisecondsPerFrame = 1000.0/Main.TARGET_FPS;
@@ -128,12 +128,13 @@ public class Game implements Runnable {
             }
 
             long finalTimeNano = System.nanoTime();
-            //totalFrameTimeMilli is the total time from start->end of the entire frame
+            //totalFrameTimeNano is the total time from start->end of the entire frame
             // (including sleep), which we use for FPS display
-            totalFrameTimeMilli = (finalTimeNano - frameStartTimeNano) / 1000000.0;
+            totalFrameTimeNano = (finalTimeNano - frameStartTimeNano);
 
             //finally, tell the panel to update the FPS display with that total time.
-            panel.updateFPS(totalFrameTimeMilli);
+            panel.updateFPS(totalFrameTimeNano / 1000000.0);
+            panel.updateFramePercentage(frameTimeNano*100/totalFrameTimeNano);
 
         }//end game loop
 

@@ -4,10 +4,13 @@ import main.entities.*;
 import main.world.Map;
 import main.world.Tile;
 
-import javax.print.attribute.standard.Finishings;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class GameState {
+    //game: the "game" object that created this
+    private Game game;
 
     //controller: the input controller, same controller as the Game object
     public ControlHandler controller;
@@ -16,7 +19,7 @@ public class GameState {
     public GamePanel panel;
 
     //entityArray: a list of all entities currently loaded
-    public Entity[] entityArray;
+    public ArrayList<Entity> entityArray;
 
     //player: the player entity. "you"
     public Player player;
@@ -24,7 +27,9 @@ public class GameState {
     //loadedMap: the currently loaded map, as a 2D array of Tile objects
     public Map loadedMap;
 
-    public GameState() {
+    public GameState(Game g) {
+        game = g;
+
         //link all entities to this GameState object,
         //so that all entities can read the state
         //basically a "global state"
@@ -48,7 +53,7 @@ public class GameState {
         loadedMap = FileHandler.loadMap(Main.MAP_SELECTION);
 
         //create the entity array, with an initial size of 16
-        entityArray = new Entity[loadedMap.initialEntities.length + 1];
+        entityArray = new ArrayList<>(loadedMap.initialEntities.length + 1);
 
         //create the player
         player = new Player();
@@ -56,13 +61,11 @@ public class GameState {
         //set the player's location to the spawn point provided by the map.
         player.setTileLocation(loadedMap.spawnX, loadedMap.spawnY);
 
-        //add the player to the array
-        entityArray[0] = player;
+        //add the player to the array (we add the player at the end, so that they always render on top of others)
+        entityArray.add(player);
 
         //add every other entity to the array
-        for(int i = 0; i < loadedMap.initialEntities.length; i++){
-            entityArray[i+1] = loadedMap.initialEntities[i];
-        }
+        entityArray.addAll(Arrays.asList(loadedMap.initialEntities));
 
         //erase the initial entity array from the map, as we no longer need it
         //if we want it back, reload the map
@@ -72,8 +75,14 @@ public class GameState {
     //update(): ran once per frame, where all the game processing happens
     public void update() {
         //update every entity loaded
-        for (Entity u : entityArray) {
-            u.update();
+
+        Iterator<Entity> it = entityArray.iterator();
+        while(it.hasNext()){
+            Entity e = it.next();
+            e.update();
+            if(!e.isAlive){
+                it.remove();
+            }
         }
     }
 
@@ -96,7 +105,7 @@ public class GameState {
     }
 
     //getEntities(): returns the entity array
-    public Entity[] getEntities() {
+    public ArrayList<Entity> getEntities() {
         return entityArray;
     }
 
@@ -127,5 +136,58 @@ public class GameState {
 
         //return the grabbed tile
         return t;
+    }
+    public Tile tileAt(float[] xy){
+        return tileAt(xy[0],xy[1]);
+    }
+
+    //tileAtTileCoord(): similar to above, but with tile-grid coordinates
+    public Tile tileAtTileCoord(int x, int y){
+        //initialize the tile
+        Tile t;
+
+        //try to grab the tile from the 2D tile array of the map
+        try{
+            t = getMapLayout()[y][x];
+        }
+        //if out of bounds, we are trying to grab a tile outside of the map
+        //so grab a null tile instead
+        catch(ArrayIndexOutOfBoundsException e){
+            t = null;
+        }
+
+        //return the grabbed tile
+        return t;
+    }
+
+    //tilesAround(): similar to tileAt(), but returns an array of the 3x3 around the coordinates
+    public Tile[] tilesAround(float x, float y){
+        //initialize the tile array
+        Tile[] outputArray = new Tile[9];
+        int iterator = 0;
+
+        //grab the tile coordinate by dividing by the tile size
+        int centerX = (int) (x / Main.TILE_SIZE);
+        int centerY = (int) (y / Main.TILE_SIZE);
+
+        //if the pixel coordinate is negative, we have an issue with rounding,
+        //which i solve by just decrementing by one.
+        //this returns the correct tile
+        if(x < 0) centerX--;
+        if(y < 0) centerY--;
+
+        //try to grab each of the tiles from the 2D tile array of the map
+        for(int row = -1; row <= 1; row++) {
+            for(int col = -1; col <= 1; col++) {
+                outputArray[iterator] = tileAtTileCoord(centerX + col, centerY + row);
+                iterator++;
+            }
+        }
+
+        //return the grabbed tile
+        return outputArray;
+    }
+    public Tile[] tilesAround(float[] xy){
+        return tilesAround(xy[0], xy[1]);
     }
 }
