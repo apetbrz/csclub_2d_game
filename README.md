@@ -1,5 +1,6 @@
 # csclub_2d_game
- Welcome! This is a little project I started to introduce game development to the USC Upstate Spring 2024 Computer Science Club
+ Welcome! This is a little project I started to introduce game development to the USC Upstate Spring 2024 Computer Science Club<br>
+ I know this could be better encapsulated, it's a work-in-progress!
 
 CONTROLS:
 
