@@ -57,6 +57,6 @@ public class Tile {
 
     //similar to Entity::isPlayer
     public boolean isInteractable(){
-        return false;
+        return this instanceof SuperTileObject;
     }
 }

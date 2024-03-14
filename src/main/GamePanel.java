@@ -19,6 +19,8 @@ public class GamePanel extends JPanel {
     //state: the GameState object. necessary for communication between state and panel
     private final GameState state;
 
+    private final Game game;
+
     //SCREEN_WIDTH_IN_TILES:
     //SCREEN_HEIGHT_IN_TILES:
     //how wide/high the screen is, measured in tiles,
@@ -64,6 +66,7 @@ public class GamePanel extends JPanel {
         //link with GameState
         state = gameState;
         state.linkPanel(this);
+        game = state.game;
 
         //initialize fps
         fps = new double[16];
@@ -120,6 +123,7 @@ public class GamePanel extends JPanel {
         drawMap(g2);
         drawEntities(g2);
         drawUI(g2);
+        if(game.isOver()) drawGameOverScreen(g2);
 
         //dispose just cleans up memory
         g2.dispose();
@@ -251,6 +255,14 @@ public class GamePanel extends JPanel {
             g2D.drawString("camera: " + cameraX + "," + cameraY, 64 * RENDER_SCALE, 60);
             g2D.drawString("player keys: " + p.getKeys(), 64 * RENDER_SCALE, 80);
         }
+    }
+
+    //drawGameOverScreen(): shown if the player loses
+    private void drawGameOverScreen(Graphics2D g2) {
+        g2.setColor(Color.WHITE);
+        g2.fillRect(TILE_SIZE*4*RENDER_SCALE, TILE_SIZE*3*RENDER_SCALE, (SCREEN_WIDTH_IN_TILES-8)*TILE_SIZE*RENDER_SCALE, (SCREEN_HEIGHT_IN_TILES-6)*TILE_SIZE*RENDER_SCALE);
+        g2.setColor(Color.RED);
+        g2.drawString("YOU DIED!", TILE_SIZE*6*RENDER_SCALE, TILE_SIZE*4*RENDER_SCALE);
     }
 
     //updateFPS(): takes the time of the previous frame (in milliseconds)

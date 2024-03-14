@@ -45,7 +45,7 @@ public class Snail extends Entity{
             //check if this is the first frame of collision
             if(!isTouchingPlayer) {
                 //if so, write a silly little message
-                Logger.log(2, "you feel....sticky");
+                Logger.log(2, "the snail caught you!!");
                 //and remember the contact
                 isTouchingPlayer = true;
             }

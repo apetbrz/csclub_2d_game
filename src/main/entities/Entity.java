@@ -1,7 +1,8 @@
 package main.entities;
 import main.*;
+import main.world.SuperTileObject;
 import main.world.Tile;
-import main.world.TileDoor;
+import main.world.Door;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -170,13 +171,11 @@ public class Entity {
             } else {
                 //otherwise, move towards target
 
-                //TODO: THIS MOVEMENT CODE SUCKS. HORRIBLY. PLEASE RE-DO
-                //TODO: FIX COLLIDER DRIFT
-
                 //moveX, moveY: x/y values normalized (to prevent diagonal movement being ~1.4x the speed)
                 float moveX = (deltaX / vectorMagnitude) * moveSpeed;
                 float moveY = (deltaY / vectorMagnitude) * moveSpeed;
 
+                //actually move:
                 moveWithTerrainCollision(moveX,moveY);
             }
         }
@@ -214,64 +213,148 @@ public class Entity {
 
     //moveWithTerrainCollision(): relative movement, with terrain blocking
     protected void moveWithTerrainCollision(float moveX, float moveY){
-        //TODO: MAKE THIS WORK:
-        //SHOULD:
-        //1) check collision
-        //2) if found, calculate overlap distance
-        //3) then move that distance backwards
-
+        //grab the 9 tiles surrounding the player
         Tile[] tilesAround = state.tilesAround(this.x,this.y);
 
+        //move in each axis independently
         moveHorizontalWithCollision(moveX, tilesAround);
         moveVerticalWithCollision(moveY, tilesAround);
     }
 
     //moveHorizontal/VerticalWithCollision(): used in above, for separate axes of movement
-    protected void moveHorizontalWithCollision(float moveX, Tile[] horizontalTiles){
+    protected void moveHorizontalWithCollision(float moveX, Tile[] tilesAround){
+        //if no movement, skip all checks.
+        if(moveX == 0) return;
+
+        //force the movement
         move(moveX, 0);
-        for(Tile t : horizontalTiles){
-            if(t == null || !t.hasCollision) continue;
 
-            if(this.collider.intersects(t.collider)) {
+        //for each tile around the player,
+        for(Tile t : tilesAround){
+            //if the tile is null, give up and let the entity move
+            //(im not gonna bother fixing this at this moment, just put walls around your maps lol)
+            if(t == null){
+                continue;
+            }
 
-                if(t.isInteractable()) ((TileDoor)t).collide(this);
+            //if the tile has no collision, skip the check
+            else if(!t.hasCollision) continue;
 
+            //otherwise, the tile does have collision
+            //check if the entity's collider overlaps the tile's collider
+            else if(this.collider.intersects(t.collider)) {
+                //if so, the entity is inside the wall
+
+                //interact with the tile, if possible
+                interact(t);
+
+                //first, grab which direction the entity is, relative to the tile
+                //this is a bit value check, rect1.outcode(point) returns a binary number with the following values OR'd together:
+                //0001 - point is LEFT of rect1
+                //0010 - point is on TOP of rect1
+                //0100 - point is RIGHT of rect1
+                //1000 - point is on the BOTTOM of rect1
+                //i.e.: 0110 == TOP RIGHT, 1001 == BOTTOM LEFT, etc.
+                //we use the entity's center as the point
                 int collisionDirection = t.collider.outcode(this.collider.getCenterX(),this.collider.getCenterY());
 
-                float tx1 = (float) t.collider.getX();
-                float tx2 = tx1 + (float) t.collider.getWidth();
+                //grab relevant coordinates of the colliders:
 
-                float ex1 = (float) this.collider.getX();
-                float ex2 = ex1 + (float) this.collider.getWidth();
+                //tileLeftEdge == tile collider's LEFT edge
+                //tileRightEdge == tile collider's RIGHT edge
+                float tileLeftEdge = (float) t.collider.getX();
+                float tileRightEdge = tileLeftEdge + (float) t.collider.getWidth();
 
-                if (moveX != 0 && (collisionDirection & Rectangle2D.OUT_RIGHT) != 0) this.move(tx2 - ex1, 0);
-                if (moveX != 0 && (collisionDirection & Rectangle2D.OUT_LEFT) != 0) this.move(0 - (ex2 - tx1), 0);
+                //entityLeftEdge == entity collider's LEFT edge
+                //entityRightEdge == entity collider's RIGHT edge
+                float entityLeftEdge = (float) this.collider.getX();
+                float entityRightEdge = entityLeftEdge + (float) this.collider.getWidth();
 
+                //check if the entity is to the right of the tile
+                //(if outcode contains OUT_RIGHT, the bitwise & will not be 0)
+                if ((collisionDirection & Rectangle2D.OUT_RIGHT) != 0){
+                    //calculate the overlap from the right (tile right edge - entity left edge)
+                    //and move that distance to the right
+                    this.move(tileRightEdge - entityLeftEdge, 0);
+                }
+                //repeat for the left
+                else if ((collisionDirection & Rectangle2D.OUT_LEFT) != 0){
+                    //overlap from the left is (entity right edge - tile left edge)
+                    //move that distance left (by moving negative distance)
+                    this.move(0 - (entityRightEdge - tileLeftEdge), 0);
+                }
             }
         }
     }
-    protected void moveVerticalWithCollision(float moveY, Tile[] verticalTiles){
+    protected void moveVerticalWithCollision(float moveY, Tile[] tilesAround){
+        //if no movement, skip all checks.
+        if(moveY == 0) return;
+
+        //force the movement
         move(0, moveY);
-        for(Tile t : verticalTiles){
-            if(t == null || !t.hasCollision) continue;
 
-            if(this.collider.intersects(t.collider)) {
+        //for each tile around the player,
+        for(Tile t : tilesAround){
+            //if the tile is null, give up and let the entity move
+            //(im not gonna bother fixing this at this moment, just put walls around your maps lol)
+            if(t == null){
+                continue;
+            }
 
-                if(t.isInteractable()) ((TileDoor)t).collide(this);
+            //if the tile has no collision, skip the check
+            else if(!t.hasCollision) continue;
 
+            //otherwise, the tile does have collision
+            //check if the entity's collider overlaps the tile's collider
+
+            else if(this.collider.intersects(t.collider)) {
+                //if so, the entity is inside the wall
+
+                //interact with the tile, if possible
+                interact(t);
+
+                //first, grab which direction the entity is, relative to the tile
+                //this is a bit value check, rect1.outcode(point) returns a binary number with the following values OR'd together:
+                //0001 - point is LEFT of rect1
+                //0010 - point is on TOP of rect1
+                //0100 - point is RIGHT of rect1
+                //1000 - point is on the BOTTOM of rect1
+                //i.e.: 0110 == TOP RIGHT, 1001 == BOTTOM LEFT, etc.
+                //we use the entity's center as the point
                 int collisionDirection = t.collider.outcode(this.collider.getCenterX(),this.collider.getCenterY());
 
-                float ty1 = (float) t.collider.getY();
-                float ty2 = ty1 + (float) t.collider.getHeight();
+                //grab relevant coordinates of the colliders:
 
-                float ey1 = (float) this.collider.getY();
-                float ey2 = ey1 + (float) this.collider.getHeight();
+                //tileTopEdge == tile collider's TOP edge
+                //tileBottomEdge == tile collider's BOTTOM edge
+                float tileTopEdge = (float) t.collider.getY();
+                float tileBottomEdge = tileTopEdge + (float) t.collider.getHeight();
 
-                if (moveY != 0 && (collisionDirection & Rectangle2D.OUT_BOTTOM) != 0) this.move(0, ty2 - ey1);
-                if (moveY != 0 && (collisionDirection & Rectangle2D.OUT_TOP) != 0) this.move(0, 0 - (ey2 - ty1));
+                //entityTopEdge == entity collider's TOP edge
+                //entityBottomEdge == entity collider's BOTTOM edge
+                float entityTopEdge = (float) this.collider.getY();
+                float entityBottomEdge = entityTopEdge + (float) this.collider.getHeight();
 
+                //check if the entity is below the tile
+                //(if outcode contains OUT_BOTTOM, the bitwise & will not be 0)
+                if ((collisionDirection & Rectangle2D.OUT_BOTTOM) != 0){
+                    //calculate the overlap from the bottom (tile bottom edge - entity top edge)
+                    //and move that distance back down
+                    this.move(0, tileBottomEdge - entityTopEdge);
+                }
+                //repeat for above
+                else if ((collisionDirection & Rectangle2D.OUT_TOP) != 0){
+                    //overlap from the top is (entity bottom edge - tile top edge)
+                    //move that distance up (by moving negative distance)
+                    this.move(0, 0 - (entityBottomEdge - tileTopEdge));
+                }
             }
         }
+    }
+
+    private void interact(Tile t) {
+        if(!(t instanceof SuperTileObject)) return;
+        if(t instanceof Door) ((Door) t).interact(this);
     }
 
     //setLocation: moves the entity to the specific coordinates in worldspace,

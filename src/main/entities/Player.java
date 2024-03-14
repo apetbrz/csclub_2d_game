@@ -12,6 +12,7 @@ public class Player extends Entity{
     private static final int DEFAULT_MOVESPEED = 2;
     private static final int DEFAULT_SIZE = 16;
 
+    //TODO: MOVE TO SETTINGS FILE FOR EASIER DEVELOPMENT (SHOULD BE CHANGED TO WORK WITH SPRITE)
     private static final int DEFAULT_TOP_MARGIN = 3;
     private static final int DEFAULT_LEFT_MARGIN = 2;
     private static final int DEFAULT_BOTTOM_MARGIN = 1;
@@ -127,20 +128,24 @@ public class Player extends Entity{
         return true;
     }
 
+
+    //getKeys(): returns how many keys the player is holding
     public int getKeys() {
         return keys;
     }
+
+    //addKey(): add one key to the player's inventory
     public void addKey(){
         keys++;
     }
+
+    //useKey(): consume one key, if it exists. returns true if successful, false if not enough keys
     public boolean useKey(){
-        if(getKeys() < 1) return false;
-        else{
-            keys--;
-            return true;
-        }
+        return(useKeys(1));
     }
-    public boolean useKey(int count){
+
+    //useKeyS(): consume some amount of keys, if they exist. returns true if successful, false if not enough keys
+    public boolean useKeys(int count){
         if(getKeys() < count) return false;
         else{
             keys -= count;

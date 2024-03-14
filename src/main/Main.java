@@ -23,7 +23,7 @@ public class Main {
     //RENDER_SCALE: a multiplier to all pixel values for rendering
     //i use 2, so at TILE_SIZE = 32,
     //the final tiles will be rendered as 64x64 pixels on the screen
-    public static final int RENDER_SCALE = 2;
+    public static final int RENDER_SCALE = 3;
 
     //CONTROL_TYPE: the control scheme.
     //    0: WASD movement

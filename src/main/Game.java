@@ -135,7 +135,19 @@ public class Game implements Runnable {
             panel.updateFPS(totalFrameTimeNano / 1000000.0);
             panel.updateFramePercentage(frameTimeNano*100/totalFrameTimeNano);
 
+            if(running == false) break;
+
         }//end game loop
 
+
+
     }//end run()
+
+    public void gameOver() {
+        running = false;
+    }
+
+    public boolean isOver() {
+        return !running;
+    }
 }

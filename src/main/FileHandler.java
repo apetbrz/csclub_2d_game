@@ -6,7 +6,7 @@ import main.entities.Key;
 import main.entities.Snail;
 import main.world.Map;
 import main.world.Tile;
-import main.world.TileDoor;
+import main.world.Door;
 import main.world.TileType;
 
 import javax.imageio.ImageIO;
@@ -157,8 +157,9 @@ public class FileHandler {
 
             //tiles: holds the individual data
             //with the format:
-            //tiles: [number of tiles] TODO: REMOVE TILE COUNT REQUIREMENT
+            //tiles:
             //[tile code] - [tile name/file name] - [boolean for collision value]
+            //[END WITH EMPTY LINE]
             else if (line.startsWith("tiles:")) {
 
                 Logger.log(0,"loading tile data");
@@ -190,14 +191,17 @@ public class FileHandler {
                     //split the line up using the dashes
                     String[] tileData = line.split("-");
 
+                    //here is all the relevant data:
                     int tileIndex;
                     String tileName;
-                    String tileNameAlt;
+                    String tileNameAlt; //used for TileObjects
                     boolean tileHasCollision;
-                    int tileKeysToOpen;
+                    int tileKeysToOpen; //used for Doors TODO: GENERALIZE
 
                     //grab the tile information from the split line
+                    //if length == 3, its a prefab TileObject
                     if(tileData.length == 3) {
+                        //grab the data
                         tileIndex = Integer.parseInt(tileData[0].trim());
                         tileName = tileData[1].trim();
                         tileHasCollision = Boolean.parseBoolean(tileData[2].trim());
@@ -208,7 +212,9 @@ public class FileHandler {
                         //store it
                         outputMap.tileTypes[tileIndex] = tileToLoad;
                     }
+                    //if length == 4, its a regular tile
                     else if(tileData.length == 4){
+                        //grab the data
                         tileIndex = Integer.parseInt(tileData[0].trim());
                         tileName = tileData[1].trim();
                         tileNameAlt = tileData[2].trim();
@@ -281,7 +287,7 @@ public class FileHandler {
                         //if tile value and position is valid, we create and store the tile object
                         Tile newTile;
                         if(outputMap.tileTypes[tileValue].isInteractable){
-                            newTile = new TileDoor(outputMap.tileTypes[tileValue], x,y);
+                            newTile = new Door(outputMap.tileTypes[tileValue], x,y);
                         }
                         else{
                             newTile = new Tile(outputMap.tileTypes[tileValue], x, y);
@@ -316,8 +322,9 @@ public class FileHandler {
 
             //entities: holds entities that are spawned on load
             //with the format:
-            //entities: [number of entities] TODO: REMOVE ENTITY COUNT REQUIREMENT
+            //entities:
             //[entity/file name] - [prefab AI type] - [size] - [movespeed] - [spawn x coord],[spawn y coord] ( - [boolean entity has directionality] OPTIONAL)
+            //[END WITH EMPTY LINE]
             else if(line.startsWith("entities:")){
 
                 Logger.log(0, "loading entities");

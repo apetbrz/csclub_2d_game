@@ -3,6 +3,7 @@ package main;
 import main.entities.*;
 import main.world.Map;
 import main.world.Tile;
+import main.world.TileType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +11,7 @@ import java.util.Iterator;
 
 public class GameState {
     //game: the "game" object that created this
-    private Game game;
+    public final Game game;
 
     //controller: the input controller, same controller as the Game object
     public ControlHandler controller;
@@ -26,6 +27,8 @@ public class GameState {
 
     //loadedMap: the currently loaded map, as a 2D array of Tile objects
     public Map loadedMap;
+
+    private Tile DEFAULT_TILE = new Tile(null,Integer.MIN_VALUE, Integer.MIN_VALUE);
 
     public GameState(Game g) {
         game = g;
@@ -82,6 +85,9 @@ public class GameState {
             e.update();
             if(!e.isAlive){
                 it.remove();
+            }
+            if(!player.isAlive){
+                game.gameOver();
             }
         }
     }
@@ -176,6 +182,7 @@ public class GameState {
         if(x < 0) centerX--;
         if(y < 0) centerY--;
 
+        Tile t;
         //try to grab each of the tiles from the 2D tile array of the map
         for(int row = -1; row <= 1; row++) {
             for(int col = -1; col <= 1; col++) {
