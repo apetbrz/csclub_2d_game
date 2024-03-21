@@ -40,6 +40,7 @@ public class FileHandler {
     public static final String DIRECTION_LEFT_SUFFIX = "_left";
     public static final String DIRECTION_DOWN_SUFFIX = "_down";
     public static final String DIRECTION_RIGHT_SUFFIX = "_right";
+    private static final String TILE_OBJECT_ALTERNATE_SUFFIX = "_alt";
 
     //loadImage(): takes in a file name (without extension)
     //returns a BufferedImage object of that file, for use in rendering
@@ -196,10 +197,9 @@ public class FileHandler {
                     String tileName;
                     String tileNameAlt; //used for TileObjects
                     boolean tileHasCollision;
-                    int tileKeysToOpen; //used for Doors TODO: GENERALIZE
 
                     //grab the tile information from the split line
-                    //if length == 3, its a prefab TileObject
+                    //if length == 3, its a regular tile
                     if(tileData.length == 3) {
                         //grab the data
                         tileIndex = Integer.parseInt(tileData[0].trim());
@@ -212,16 +212,15 @@ public class FileHandler {
                         //store it
                         outputMap.tileTypes[tileIndex] = tileToLoad;
                     }
-                    //if length == 4, its a regular tile
-                    else if(tileData.length == 4){
+                    //if length == 2, its a prefab TileObject
+                    else if(tileData.length == 2){
                         //grab the data
                         tileIndex = Integer.parseInt(tileData[0].trim());
                         tileName = tileData[1].trim();
-                        tileNameAlt = tileData[2].trim();
-                        tileKeysToOpen = Integer.parseInt(tileData[3].trim());
+                        tileNameAlt = tileName + TILE_OBJECT_ALTERNATE_SUFFIX;
 
                         //create the object
-                        TileType tileToLoad = new TileType(tileName, tileNameAlt, tileKeysToOpen);
+                        TileType tileToLoad = new TileType(tileName, tileNameAlt);
 
                         //store it
                         outputMap.tileTypes[tileIndex] = tileToLoad;

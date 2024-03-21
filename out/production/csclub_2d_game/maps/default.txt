@@ -21,7 +21,7 @@ tiles:
 4 - wood_floor - false
 5 - wood_wall - true
 6 - water - true
-7 - door - door_open - 1
+7 - door
 
 //spawn:
 //X,Y tile coordinate of the spawn point

@@ -92,7 +92,7 @@ public class Critter extends Entity{
                     Logger.log(1, "the friend gives you a key!");
                     //and give the key to the player
                     hasKey = false;
-                    ((Player)e).addKey();
+                    ((Player)e).addItem(new Key());
                 }
             }
         }

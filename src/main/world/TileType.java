@@ -10,7 +10,6 @@ public class TileType {
     public String fileName;
     public String fileNameAlt;
     public boolean hasCollision;
-    public int keysNeededToActivate;
     public boolean isInteractable = false;
 
     public TileType(){
@@ -23,11 +22,10 @@ public class TileType {
         this.hasCollision = hasCollision;
     }
 
-    public TileType(String fileName, String fileNameAlt, int keysNeededToActivate){
+    public TileType(String fileName, String fileNameAlt){
         this.fileName = fileName;
         this.fileNameAlt = fileNameAlt;
         this.hasCollision = true;
-        this.keysNeededToActivate = keysNeededToActivate;
 
         isInteractable = true;
     }

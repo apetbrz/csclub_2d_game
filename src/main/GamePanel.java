@@ -253,7 +253,7 @@ public class GamePanel extends JPanel {
             g2D.drawString("player: " + p.x + "," + p.y, 64 * RENDER_SCALE, 20);
             g2D.drawString("collider: " + p.collider.getX() + "," + p.collider.getY(), 64 * RENDER_SCALE, 40);
             g2D.drawString("camera: " + cameraX + "," + cameraY, 64 * RENDER_SCALE, 60);
-            g2D.drawString("player keys: " + p.getKeys(), 64 * RENDER_SCALE, 80);
+            g2D.drawString("player inventory: " + p.getInventory(), 64 * RENDER_SCALE, 80);
         }
     }
 
@@ -300,6 +300,7 @@ public class GamePanel extends JPanel {
     }
 
     //centerCamera(): center the camera view on the player.
+    //TODO: FIX RENDER_SCALE ISSUE
     public void centerCamera(){
         cameraX = ((int) state.player.x * RENDER_SCALE - (RENDER_SCALE * SCREEN_WIDTH_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
         cameraY = ((int) state.player.y * RENDER_SCALE - (RENDER_SCALE * SCREEN_HEIGHT_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);

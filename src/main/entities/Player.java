@@ -2,6 +2,8 @@ package main.entities;
 
 import main.*;
 
+import java.util.ArrayList;
+
 public class Player extends Entity{
 
     //TODO: GAMEPLAY, MORE ENTITY TYPES
@@ -17,11 +19,12 @@ public class Player extends Entity{
     private static final int DEFAULT_LEFT_MARGIN = 2;
     private static final int DEFAULT_BOTTOM_MARGIN = 1;
     private static final int DEFAULT_RIGHT_MARGIN = 2;
+    private static final int DEFAULT_INVENTORY_SIZE = 16;
 
     //TODO: Inventory FOR ALL ENTITIES?
     //TODO: GAMEPLAY DESIGN
-    private int keys = 0;
-    
+    private final ArrayList<Item> inventory;
+
     //DEFAULT CONSTRUCTOR OVERRIDE
     //no other constructor, we want the player to always be the same (unless future multiplayer support)
     public Player() {
@@ -30,6 +33,8 @@ public class Player extends Entity{
         this.name = DEFAULT_NAME;
         this.size = DEFAULT_SIZE;
         this.moveSpeed = DEFAULT_MOVESPEED;
+
+        this.inventory = new ArrayList<>(DEFAULT_INVENTORY_SIZE);
 
         //since the player is always directional,
         //initialize the directionality
@@ -128,28 +133,22 @@ public class Player extends Entity{
         return true;
     }
 
-
-    //getKeys(): returns how many keys the player is holding
-    public int getKeys() {
-        return keys;
+    public ArrayList<Item> getInventory() {
+        return inventory;
     }
 
-    //addKey(): add one key to the player's inventory
-    public void addKey(){
-        keys++;
+    public void addItem(Item i){
+        this.inventory.add(i);
     }
 
-    //useKey(): consume one key, if it exists. returns true if successful, false if not enough keys
+    //useKey(): consume one key, if it exists. returns true if successful, false if no keys
     public boolean useKey(){
-        return(useKeys(1));
-    }
-
-    //useKeyS(): consume some amount of keys, if they exist. returns true if successful, false if not enough keys
-    public boolean useKeys(int count){
-        if(getKeys() < count) return false;
-        else{
-            keys -= count;
-            return true;
+        for(Item i : inventory){
+            if(i instanceof Key){
+                inventory.remove(i);
+                return true;
+            }
         }
+        return false;
     }
 }
