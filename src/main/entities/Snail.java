@@ -7,15 +7,15 @@ public class Snail extends Entity{
     //a second example prefab entity
     //the snail chases the player
 
-    private boolean isTouchingPlayer;
+    private boolean isCurrentlyTouchingPlayer;
 
     public Snail(){
         super();
-        isTouchingPlayer = false;
+        isCurrentlyTouchingPlayer = false;
     }
     public Snail(String name, int size, float moveSpeed, boolean directional) {
         super(name, size, moveSpeed, directional);
-        isTouchingPlayer = false;
+        isCurrentlyTouchingPlayer = false;
     }
 
     //update(): overrides Entity::update, adding new functionality
@@ -43,17 +43,17 @@ public class Snail extends Entity{
         //if yes,
         if(collision){
             //check if this is the first frame of collision
-            if(!isTouchingPlayer) {
+            if(!isCurrentlyTouchingPlayer) {
                 //if so, write a silly little message
                 Logger.log(2, "the snail caught you!!");
                 //and remember the contact
-                isTouchingPlayer = true;
+                isCurrentlyTouchingPlayer = true;
             }
         }
         //if no collision, (but touched last frame)
-        else if(isTouchingPlayer){
+        else if(isCurrentlyTouchingPlayer){
             //remember this
-            isTouchingPlayer = false;
+            isCurrentlyTouchingPlayer = false;
         }
 
         //no else

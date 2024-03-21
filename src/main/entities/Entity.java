@@ -400,6 +400,16 @@ public class Entity {
         return new float[]{this.topLeftEdgeToCenter(this.x), this.topLeftEdgeToCenter(this.y)};
     }
 
+    protected float distanceTo(Entity e){
+        float[] selfCenter = getCenter();
+        float[] targetCenter = e.getCenter();
+
+        float dX = targetCenter[0] - selfCenter[0];
+        float dY = targetCenter[1] - selfCenter[1];
+
+        return (float)Math.sqrt(dX * dX + dY * dY);
+    }
+
     //collide(): returns a boolean value of whether the entity collides with the target
     //can be overriden to add extra functionality to entity types
     public boolean collide(Entity target){

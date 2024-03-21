@@ -41,6 +41,10 @@ friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
 friend - critter - 8 - 1 - 14,8
+friend - scaredycat - 8 - 1 - 16,9
+friend - scaredycat - 8 - 1 - 15,10
+friend - scaredycat - 8 - 1 - 15,9
+friend - scaredycat - 8 - 1 - 16,10
 player - snail - 8 - 0.25 - 14,8 - true
 key - 27,8
 key - 30,12

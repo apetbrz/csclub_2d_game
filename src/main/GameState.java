@@ -56,7 +56,8 @@ public class GameState {
         loadedMap = FileHandler.loadMap(Main.MAP_SELECTION);
 
         //create the entity array, with an initial size of 16
-        entityArray = new ArrayList<>(loadedMap.initialEntities.length + 1);
+        if(loadedMap.initialEntities == null) entityArray = new ArrayList<>();
+        else entityArray = new ArrayList<>(loadedMap.initialEntities.length + 1);
 
         //create the player
         player = new Player();
@@ -68,7 +69,7 @@ public class GameState {
         entityArray.add(player);
 
         //add every other entity to the array
-        entityArray.addAll(Arrays.asList(loadedMap.initialEntities));
+        if(loadedMap.initialEntities != null) entityArray.addAll(Arrays.asList(loadedMap.initialEntities));
 
         //erase the initial entity array from the map, as we no longer need it
         //if we want it back, reload the map

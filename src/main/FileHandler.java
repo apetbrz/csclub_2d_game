@@ -1,9 +1,6 @@
 package main;
 
-import main.entities.Critter;
-import main.entities.Entity;
-import main.entities.Key;
-import main.entities.Snail;
+import main.entities.*;
 import main.world.Map;
 import main.world.Tile;
 import main.world.Door;
@@ -387,6 +384,7 @@ public class FileHandler {
                     switch (entityType) {
                         case "critter" -> outputMap.initialEntities[i] = new Critter(entityName, entitySize, entityMovespeed, entityDirectional);
                         case "snail" -> outputMap.initialEntities[i] = new Snail(entityName, entitySize, entityMovespeed, entityDirectional);
+                        case "scaredycat" -> outputMap.initialEntities[i] = new ScaredyCat(entityName, entitySize, entityMovespeed, entityDirectional);
                         case "key" -> outputMap.initialEntities[i] = new Key();
                     }
 
